@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,9 +11,10 @@ interface IdeaFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (idea: Idea) => void;
+  editingIdea?: Idea | null;
 }
 
-export function IdeaFormDialog({ open, onOpenChange, onSubmit }: IdeaFormDialogProps) {
+export function IdeaFormDialog({ open, onOpenChange, onSubmit, editingIdea }: IdeaFormDialogProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [observation, setObservation] = useState('');
@@ -21,6 +22,17 @@ export function IdeaFormDialog({ open, onOpenChange, onSubmit }: IdeaFormDialogP
   const [attName, setAttName] = useState('');
   const [attUrl, setAttUrl] = useState('');
   const [attDesc, setAttDesc] = useState('');
+
+  useEffect(() => {
+    if (editingIdea) {
+      setTitle(editingIdea.title);
+      setDescription(editingIdea.description);
+      setObservation(editingIdea.observation);
+      setAttachments([...editingIdea.attachments]);
+    } else {
+      setTitle(''); setDescription(''); setObservation(''); setAttachments([]);
+    }
+  }, [editingIdea]);
 
   const addAttachment = () => {
     if (!attName || !attUrl) return;
@@ -41,12 +53,12 @@ export function IdeaFormDialog({ open, onOpenChange, onSubmit }: IdeaFormDialogP
   const handleSubmit = () => {
     if (!title) return;
     onSubmit({
-      id: crypto.randomUUID(),
+      id: editingIdea?.id || crypto.randomUUID(),
       title,
       description,
       observation,
       attachments,
-      createdAt: new Date().toISOString(),
+      createdAt: editingIdea?.createdAt || new Date().toISOString(),
     });
     setTitle(''); setDescription(''); setObservation(''); setAttachments([]);
     onOpenChange(false);
@@ -56,7 +68,7 @@ export function IdeaFormDialog({ open, onOpenChange, onSubmit }: IdeaFormDialogP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="glass border-border max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-display gradient-text text-lg">Nova Ideia</DialogTitle>
+          <DialogTitle className="text-display gradient-text text-lg">{editingIdea ? 'Editar Ideia' : 'Nova Ideia'}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
@@ -98,7 +110,7 @@ export function IdeaFormDialog({ open, onOpenChange, onSubmit }: IdeaFormDialogP
           </div>
 
           <Button onClick={handleSubmit} className="w-full bg-primary text-primary-foreground font-semibold">
-            Registrar Ideia
+            {editingIdea ? 'Salvar Alterações' : 'Registrar Ideia'}
           </Button>
         </div>
       </DialogContent>

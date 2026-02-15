@@ -7,9 +7,10 @@ import { Idea } from '@/types/project';
 interface IdeasListProps {
   ideas: Idea[];
   onDelete: (id: string) => void;
+  onEdit: (idea: Idea) => void;
 }
 
-export function IdeasList({ ideas, onDelete }: IdeasListProps) {
+export function IdeasList({ ideas, onDelete, onEdit }: IdeasListProps) {
   if (ideas.length === 0) {
     return (
       <div className="glass rounded-lg p-8 text-center">
@@ -29,7 +30,8 @@ export function IdeasList({ ideas, onDelete }: IdeasListProps) {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.05 }}
-          className="glass rounded-lg p-4 hover:glow-accent transition-all"
+          className="glass rounded-lg p-4 hover:glow-accent transition-all cursor-pointer"
+          onClick={() => onEdit(idea)}
         >
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
@@ -46,7 +48,7 @@ export function IdeasList({ ideas, onDelete }: IdeasListProps) {
                 )}
               </div>
             </div>
-            <button onClick={() => onDelete(idea.id)} className="text-muted-foreground hover:text-destructive transition-colors p-1">
+            <button onClick={(e) => { e.stopPropagation(); onDelete(idea.id); }} className="text-muted-foreground hover:text-destructive transition-colors p-1">
               <Trash2 className="h-4 w-4" />
             </button>
           </div>

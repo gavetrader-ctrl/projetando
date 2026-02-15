@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ interface ProjectFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (project: Project) => void;
+  editingProject?: Project | null;
 }
 
 const emptyProject = (): Partial<Project> => ({
@@ -24,9 +25,19 @@ const emptyProject = (): Partial<Project> => ({
   returnTimeline: 'medium', returnFrequency: 'once', observations: '', activities: [],
 });
 
-export function ProjectFormDialog({ open, onOpenChange, onSubmit }: ProjectFormDialogProps) {
+export function ProjectFormDialog({ open, onOpenChange, onSubmit, editingProject }: ProjectFormDialogProps) {
   const [form, setForm] = useState<Partial<Project>>(emptyProject());
   const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    if (editingProject) {
+      setForm({ ...editingProject });
+      setStep(0);
+    } else {
+      setForm(emptyProject());
+      setStep(0);
+    }
+  }, [editingProject]);
 
   const set = (key: string, value: any) => setForm(prev => ({ ...prev, [key]: value }));
   const setFinancial = (key: string, value: any) => setForm(prev => ({
@@ -75,9 +86,9 @@ export function ProjectFormDialog({ open, onOpenChange, onSubmit }: ProjectFormD
     if (!form.name) return;
     onSubmit({
       ...form,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      activities: [],
+      id: editingProject?.id || crypto.randomUUID(),
+      createdAt: editingProject?.createdAt || new Date().toISOString(),
+      activities: form.activities || [],
     } as Project);
     setForm(emptyProject());
     setStep(0);
@@ -108,7 +119,7 @@ export function ProjectFormDialog({ open, onOpenChange, onSubmit }: ProjectFormD
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="glass border-border max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-display gradient-text text-lg">Novo Projeto</DialogTitle>
+          <DialogTitle className="text-display gradient-text text-lg">{editingProject ? 'Editar Projeto' : 'Novo Projeto'}</DialogTitle>
         </DialogHeader>
 
         {/* Step indicator */}
@@ -293,7 +304,7 @@ export function ProjectFormDialog({ open, onOpenChange, onSubmit }: ProjectFormD
             {step < steps.length - 1 ? (
               <Button onClick={() => setStep(step + 1)} className="flex-1 bg-primary text-primary-foreground">Próximo</Button>
             ) : (
-              <Button onClick={handleSubmit} className="flex-1 bg-primary text-primary-foreground font-semibold">Criar Projeto</Button>
+              <Button onClick={handleSubmit} className="flex-1 bg-primary text-primary-foreground font-semibold">{editingProject ? 'Salvar Alterações' : 'Criar Projeto'}</Button>
             )}
           </div>
         </div>
