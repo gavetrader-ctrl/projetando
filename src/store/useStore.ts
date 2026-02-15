@@ -46,9 +46,13 @@ export function useIdeas() {
     setIdeas(prev => [idea, ...prev]);
   }, []);
 
+  const updateIdea = useCallback((idea: Idea) => {
+    setIdeas(prev => prev.map(i => i.id === idea.id ? idea : i));
+  }, []);
+
   const deleteIdea = useCallback((id: string) => {
     setIdeas(prev => prev.filter(i => i.id !== id));
   }, []);
 
-  return { ideas, addIdea, deleteIdea };
+  return { ideas, addIdea, updateIdea, deleteIdea };
 }
