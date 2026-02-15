@@ -1,11 +1,38 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { DashboardHeader } from '@/components/DashboardHeader';
+import { SummaryCards } from '@/components/SummaryCards';
+import { ProjectList } from '@/components/ProjectList';
+import { IdeasList } from '@/components/IdeasList';
+import { useProjects, useIdeas } from '@/store/useStore';
+import { ProjectStatus } from '@/types/project';
 
 const Index = () => {
+  const { projects, addProject } = useProjects();
+  const { ideas, addIdea, deleteIdea } = useIdeas();
+  const [filter, setFilter] = useState<ProjectStatus | 'ideas' | null>(null);
+
+  const counts = {
+    ideas: ideas.length,
+    planning: projects.filter(p => p.status === 'planning').length,
+    active: projects.filter(p => p.status === 'active').length,
+    paused: projects.filter(p => p.status === 'paused').length,
+    finished: projects.filter(p => p.status === 'finished').length,
+  };
+
+  const filteredProjects = filter && filter !== 'ideas'
+    ? projects.filter(p => p.status === filter)
+    : projects;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-background">
+      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        <DashboardHeader onAddIdea={addIdea} onAddProject={addProject} />
+        <SummaryCards {...counts} onFilter={setFilter} activeFilter={filter} />
+        {filter === 'ideas' ? (
+          <IdeasList ideas={ideas} onDelete={deleteIdea} />
+        ) : (
+          <ProjectList projects={filteredProjects} />
+        )}
       </div>
     </div>
   );
