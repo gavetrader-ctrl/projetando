@@ -2,14 +2,17 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Project, Attachment } from '@/types/project';
+import { Project, Attachment, Activity } from '@/types/project';
 import {
   CalendarDays, Tag, Users, DollarSign, FileText, Pencil, ExternalLink, Copy, Upload,
-  Lightbulb, Clock, TrendingUp, Paperclip, CheckCircle2, Circle
+  Lightbulb, Clock, TrendingUp, Paperclip, CheckCircle2, Circle, Plus, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 interface ProjectViewDialogProps {
   open: boolean;
@@ -40,9 +43,7 @@ function AttachmentItem({ att, onUpload }: { att: Attachment; onUpload?: (id: st
 
   const handleOpen = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (att.url) {
-      window.open(att.url, '_blank', 'noopener,noreferrer');
-    }
+    if (att.url) window.open(att.url, '_blank', 'noopener,noreferrer');
   };
 
   const handleUploadClick = (e: React.MouseEvent) => {
@@ -52,9 +53,7 @@ function AttachmentItem({ att, onUpload }: { att: Attachment; onUpload?: (id: st
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && onUpload) {
-      onUpload(att.id, file);
-    }
+    if (file && onUpload) onUpload(att.id, file);
   };
 
   return (
@@ -107,6 +106,52 @@ function CostTable({ label, items }: { label: string; items: { description: stri
   );
 }
 
+function ActivityForm({ onAdd }: { onAdd: (activity: Activity) => void }) {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    onAdd({
+      id: crypto.randomUUID(),
+      title: title.trim(),
+      description: description.trim(),
+      date: new Date().toISOString(),
+      completed: false,
+    });
+    setTitle('');
+    setDescription('');
+    toast.success('Atividade adicionada!');
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="glass rounded-md p-3 space-y-3">
+      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+        <Plus className="h-3 w-3" /> Nova Atividade
+      </h4>
+      <div className="space-y-2">
+        <Input
+          placeholder="Título da atividade"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="bg-muted/30 border-border text-sm"
+          required
+        />
+        <Textarea
+          placeholder="Descrição (opcional)"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="bg-muted/30 border-border text-sm min-h-[60px]"
+        />
+      </div>
+      <Button type="submit" size="sm" className="bg-primary text-primary-foreground gap-1 text-xs">
+        <Plus className="h-3 w-3" /> Adicionar
+      </Button>
+    </form>
+  );
+}
+
 export function ProjectViewDialog({ open, onOpenChange, project, onEdit, onUpdate }: ProjectViewDialogProps) {
   if (!project) return null;
 
@@ -122,6 +167,32 @@ export function ProjectViewDialog({ open, onOpenChange, project, onEdit, onUpdat
     );
     onUpdate(project.id, { [attKey]: updatedAtts });
     toast.success(`Arquivo "${file.name}" carregado localmente.`);
+  };
+
+  const handleAddActivity = (activity: Activity) => {
+    const updatedActivities = [...(project.activities || []), activity];
+    const updates: Partial<Project> = { activities: updatedActivities };
+
+    // Auto-change status from planning to active when adding first activity
+    if (project.status === 'planning') {
+      updates.status = 'active';
+      toast.info('Projeto alterado para Ativo automaticamente!');
+    }
+
+    onUpdate(project.id, updates);
+  };
+
+  const handleToggleActivity = (activityId: string) => {
+    const updatedActivities = (project.activities || []).map(a =>
+      a.id === activityId ? { ...a, completed: !a.completed } : a
+    );
+    onUpdate(project.id, { activities: updatedActivities });
+  };
+
+  const handleDeleteActivity = (activityId: string) => {
+    const updatedActivities = (project.activities || []).filter(a => a.id !== activityId);
+    onUpdate(project.id, { activities: updatedActivities });
+    toast.success('Atividade removida.');
   };
 
   const fin = project.financial;
@@ -297,20 +368,32 @@ export function ProjectViewDialog({ open, onOpenChange, project, onEdit, onUpdat
             <CostTable label="Imprevistos" items={fin?.unexpected || []} />
           </TabsContent>
 
-          <TabsContent value="activities" className="space-y-2 mt-4">
+          <TabsContent value="activities" className="space-y-4 mt-4">
+            <ActivityForm onAdd={handleAddActivity} />
+
             {(project.activities?.length > 0) ? (
               project.activities.map(act => (
                 <div key={act.id} className="glass rounded-md p-3 flex items-start gap-3">
-                  {act.completed ? (
-                    <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" />
-                  ) : (
-                    <Circle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                  )}
+                  <button onClick={() => handleToggleActivity(act.id)} className="mt-0.5 shrink-0">
+                    {act.completed ? (
+                      <CheckCircle2 className="h-4 w-4 text-success" />
+                    ) : (
+                      <Circle className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+                    )}
+                  </button>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium ${act.completed ? 'line-through text-muted-foreground' : ''}`}>{act.title}</p>
                     {act.description && <p className="text-xs text-muted-foreground mt-0.5">{act.description}</p>}
                     {act.date && <p className="text-[10px] text-muted-foreground/60 mt-1">{format(new Date(act.date), "dd MMM yyyy", { locale: ptBR })}</p>}
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0"
+                    onClick={() => handleDeleteActivity(act.id)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
               ))
             ) : (
