@@ -5,6 +5,7 @@ import { ProjectList } from '@/components/ProjectList';
 import { IdeasList } from '@/components/IdeasList';
 import { IdeaFormDialog } from '@/components/IdeaFormDialog';
 import { ProjectFormDialog } from '@/components/ProjectFormDialog';
+import { ProjectViewDialog } from '@/components/ProjectViewDialog';
 import { useProjects, useIdeas } from '@/store/useStore';
 import { Project, Idea, ProjectStatus } from '@/types/project';
 
@@ -17,6 +18,8 @@ const Index = () => {
   const [ideaEditOpen, setIdeaEditOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectEditOpen, setProjectEditOpen] = useState(false);
+  const [viewingProject, setViewingProject] = useState<Project | null>(null);
+  const [projectViewOpen, setProjectViewOpen] = useState(false);
 
   const counts = {
     ideas: ideas.length,
@@ -44,6 +47,11 @@ const Index = () => {
     setEditingIdea(null);
   };
 
+  const handleViewProject = (project: Project) => {
+    setViewingProject(project);
+    setProjectViewOpen(true);
+  };
+
   const handleEditProject = (project: Project) => {
     setEditingProject(project);
     setProjectEditOpen(true);
@@ -66,7 +74,7 @@ const Index = () => {
         {filter === 'ideas' ? (
           <IdeasList ideas={ideas} onDelete={deleteIdea} onEdit={handleEditIdea} />
         ) : (
-          <ProjectList projects={filteredProjects} onEdit={handleEditProject} />
+          <ProjectList projects={filteredProjects} onView={handleViewProject} onEdit={handleEditProject} />
         )}
       </div>
 
@@ -81,6 +89,13 @@ const Index = () => {
         onOpenChange={(open) => { setProjectEditOpen(open); if (!open) setEditingProject(null); }}
         onSubmit={handleProjectSubmit}
         editingProject={editingProject}
+      />
+      <ProjectViewDialog
+        open={projectViewOpen}
+        onOpenChange={(open) => { setProjectViewOpen(open); if (!open) setViewingProject(null); }}
+        project={viewingProject}
+        onEdit={handleEditProject}
+        onUpdate={updateProject}
       />
     </div>
   );
