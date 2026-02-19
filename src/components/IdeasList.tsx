@@ -7,10 +7,11 @@ import { Idea } from '@/types/project';
 interface IdeasListProps {
   ideas: Idea[];
   onDelete: (id: string) => void;
+  onView: (idea: Idea) => void;
   onEdit: (idea: Idea) => void;
 }
 
-export function IdeasList({ ideas, onDelete, onEdit }: IdeasListProps) {
+export function IdeasList({ ideas, onDelete, onView, onEdit }: IdeasListProps) {
   if (ideas.length === 0) {
     return (
       <div className="glass rounded-lg p-8 text-center">
@@ -31,7 +32,7 @@ export function IdeasList({ ideas, onDelete, onEdit }: IdeasListProps) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.05 }}
           className="glass rounded-lg p-4 hover:glow-accent transition-all cursor-pointer"
-          onClick={() => onEdit(idea)}
+          onClick={() => onView(idea)}
         >
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
