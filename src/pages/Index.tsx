@@ -4,6 +4,7 @@ import { SummaryCards } from '@/components/SummaryCards';
 import { ProjectList } from '@/components/ProjectList';
 import { IdeasList } from '@/components/IdeasList';
 import { IdeaFormDialog } from '@/components/IdeaFormDialog';
+import { IdeaViewDialog } from '@/components/IdeaViewDialog';
 import { ProjectFormDialog } from '@/components/ProjectFormDialog';
 import { ProjectViewDialog } from '@/components/ProjectViewDialog';
 import { useProjects, useIdeas } from '@/store/useStore';
@@ -16,6 +17,8 @@ const Index = () => {
 
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null);
   const [ideaEditOpen, setIdeaEditOpen] = useState(false);
+  const [viewingIdea, setViewingIdea] = useState<Idea | null>(null);
+  const [ideaViewOpen, setIdeaViewOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectEditOpen, setProjectEditOpen] = useState(false);
   const [viewingProject, setViewingProject] = useState<Project | null>(null);
@@ -32,6 +35,11 @@ const Index = () => {
   const filteredProjects = filter && filter !== 'ideas'
     ? projects.filter(p => p.status === filter)
     : projects;
+
+  const handleViewIdea = (idea: Idea) => {
+    setViewingIdea(idea);
+    setIdeaViewOpen(true);
+  };
 
   const handleEditIdea = (idea: Idea) => {
     setEditingIdea(idea);
@@ -72,7 +80,7 @@ const Index = () => {
         <DashboardHeader onAddIdea={addIdea} onAddProject={addProject} />
         <SummaryCards {...counts} onFilter={setFilter} activeFilter={filter} />
         {filter === 'ideas' ? (
-          <IdeasList ideas={ideas} onDelete={deleteIdea} onEdit={handleEditIdea} />
+          <IdeasList ideas={ideas} onDelete={deleteIdea} onView={handleViewIdea} onEdit={handleEditIdea} />
         ) : (
           <ProjectList projects={filteredProjects} onView={handleViewProject} onEdit={handleEditProject} />
         )}
@@ -96,6 +104,12 @@ const Index = () => {
         project={viewingProject}
         onEdit={handleEditProject}
         onUpdate={updateProject}
+      />
+      <IdeaViewDialog
+        open={ideaViewOpen}
+        onOpenChange={(open) => { setIdeaViewOpen(open); if (!open) setViewingIdea(null); }}
+        idea={viewingIdea}
+        onEdit={handleEditIdea}
       />
     </div>
   );
