@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ideas: {
+        Row: {
+          attachments: Json
+          created_at: string
+          description: string
+          id: string
+          observation: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json
+          created_at?: string
+          description?: string
+          id?: string
+          observation?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          attachments?: Json
+          created_at?: string
+          description?: string
+          id?: string
+          observation?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          activities: Json
+          created_at: string
+          description: string
+          end_date: string | null
+          financial: Json
+          has_participants: boolean
+          id: string
+          name: string
+          observations: string
+          participants: Json
+          priority: string
+          progress: number
+          project_attachments: Json
+          return_frequency: string
+          return_timeline: string
+          start_date: string | null
+          status: string
+          study_attachments: Json
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activities?: Json
+          created_at?: string
+          description?: string
+          end_date?: string | null
+          financial?: Json
+          has_participants?: boolean
+          id?: string
+          name: string
+          observations?: string
+          participants?: Json
+          priority?: string
+          progress?: number
+          project_attachments?: Json
+          return_frequency?: string
+          return_timeline?: string
+          start_date?: string | null
+          status?: string
+          study_attachments?: Json
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activities?: Json
+          created_at?: string
+          description?: string
+          end_date?: string | null
+          financial?: Json
+          has_participants?: boolean
+          id?: string
+          name?: string
+          observations?: string
+          participants?: Json
+          priority?: string
+          progress?: number
+          project_attachments?: Json
+          return_frequency?: string
+          return_timeline?: string
+          start_date?: string | null
+          status?: string
+          study_attachments?: Json
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
