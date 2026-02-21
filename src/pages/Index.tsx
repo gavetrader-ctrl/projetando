@@ -24,6 +24,7 @@ const Index = () => {
   const [projectEditOpen, setProjectEditOpen] = useState(false);
   const [viewingProject, setViewingProject] = useState<Project | null>(null);
   const [projectViewOpen, setProjectViewOpen] = useState(false);
+  const [projectViewTab, setProjectViewTab] = useState('overview');
 
   const counts = {
     ideas: ideas.length,
@@ -58,6 +59,13 @@ const Index = () => {
 
   const handleViewProject = (project: Project) => {
     setViewingProject(project);
+    setProjectViewTab('overview');
+    setProjectViewOpen(true);
+  };
+
+  const handleAddActivity = (project: Project) => {
+    setViewingProject(project);
+    setProjectViewTab('activities');
     setProjectViewOpen(true);
   };
 
@@ -85,7 +93,7 @@ const Index = () => {
         ) : (
           <>
             <ProjectTimeChart projects={filteredProjects} />
-            <ProjectList projects={filteredProjects} onView={handleViewProject} onEdit={handleEditProject} />
+            <ProjectList projects={filteredProjects} onView={handleViewProject} onEdit={handleEditProject} onAddActivity={handleAddActivity} />
           </>
         )}
       </div>
@@ -108,6 +116,7 @@ const Index = () => {
         project={viewingProject}
         onEdit={handleEditProject}
         onUpdate={updateProject}
+        defaultTab={projectViewTab}
       />
       <IdeaViewDialog
         open={ideaViewOpen}
