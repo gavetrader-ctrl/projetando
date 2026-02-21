@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { SummaryCards } from '@/components/SummaryCards';
 import { ProjectList } from '@/components/ProjectList';
+import { ProjectTimeChart } from '@/components/ProjectTimeChart';
 import { IdeasList } from '@/components/IdeasList';
 import { IdeaFormDialog } from '@/components/IdeaFormDialog';
 import { IdeaViewDialog } from '@/components/IdeaViewDialog';
@@ -82,7 +83,10 @@ const Index = () => {
         {filter === 'ideas' ? (
           <IdeasList ideas={ideas} onDelete={deleteIdea} onView={handleViewIdea} onEdit={handleEditIdea} />
         ) : (
-          <ProjectList projects={filteredProjects} onView={handleViewProject} onEdit={handleEditProject} />
+          <>
+            <ProjectTimeChart projects={filteredProjects} />
+            <ProjectList projects={filteredProjects} onView={handleViewProject} onEdit={handleEditProject} />
+          </>
         )}
       </div>
 
