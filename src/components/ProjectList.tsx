@@ -1,14 +1,16 @@
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { CalendarDays, Tag, Eye, Pencil } from 'lucide-react';
+import { CalendarDays, Tag, Eye, Pencil, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Project, ProjectStatus } from '@/types/project';
 
 interface ProjectListProps {
   projects: Project[];
   onView: (project: Project) => void;
   onEdit: (project: Project) => void;
+  onAddActivity: (project: Project) => void;
 }
 
 const statusLabels: Record<ProjectStatus, string> = {
@@ -33,7 +35,7 @@ const typeLabels: Record<string, string> = {
   financial: 'Financeiro', health: 'Saúde', spiritual: 'Espiritual', other: 'Outro',
 };
 
-export function ProjectList({ projects, onView, onEdit }: ProjectListProps) {
+export function ProjectList({ projects, onView, onEdit, onAddActivity }: ProjectListProps) {
   if (projects.length === 0) {
     return (
       <div className="glass rounded-lg p-8 text-center">
@@ -82,12 +84,30 @@ export function ProjectList({ projects, onView, onEdit }: ProjectListProps) {
               </div>
             </div>
             <div className="flex gap-1 shrink-0">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => { e.stopPropagation(); onView(project); }} title="Visualizar">
-                <Eye className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-accent-foreground" onClick={(e) => { e.stopPropagation(); onEdit(project); }} title="Editar">
-                <Pencil className="h-4 w-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => { e.stopPropagation(); onAddActivity(project); }}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Adicionar Atividade</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => { e.stopPropagation(); onView(project); }}>
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Visualizar</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-accent-foreground" onClick={(e) => { e.stopPropagation(); onEdit(project); }}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Editar</TooltipContent>
+              </Tooltip>
             </div>
           </div>
 

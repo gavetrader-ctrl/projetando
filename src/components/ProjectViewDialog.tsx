@@ -20,6 +20,7 @@ interface ProjectViewDialogProps {
   project: Project | null;
   onEdit: (project: Project) => void;
   onUpdate: (id: string, updates: Partial<Project>) => void;
+  defaultTab?: string;
 }
 
 const statusLabels = { planning: 'Planejamento', active: 'Ativo', paused: 'Paralisado', finished: 'Finalizado' };
@@ -178,7 +179,7 @@ function ActivityForm({ onAdd }: { onAdd: (activity: Activity) => void }) {
   );
 }
 
-export function ProjectViewDialog({ open, onOpenChange, project, onEdit, onUpdate }: ProjectViewDialogProps) {
+export function ProjectViewDialog({ open, onOpenChange, project, onEdit, onUpdate, defaultTab = 'overview' }: ProjectViewDialogProps) {
   if (!project) return null;
 
   const handleEdit = () => {
@@ -269,7 +270,7 @@ export function ProjectViewDialog({ open, onOpenChange, project, onEdit, onUpdat
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="overview" className="p-6 pt-4">
+        <Tabs defaultValue={defaultTab} key={defaultTab} className="p-6 pt-4">
           <TabsList className="w-full bg-muted/50">
             <TabsTrigger value="overview" className="flex-1 text-xs">Visão Geral</TabsTrigger>
             <TabsTrigger value="attachments" className="flex-1 text-xs">Anexos</TabsTrigger>
