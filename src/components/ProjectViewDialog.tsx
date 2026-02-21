@@ -109,6 +109,8 @@ function CostTable({ label, items }: { label: string; items: { description: stri
 function ActivityForm({ onAdd }: { onAdd: (activity: Activity) => void }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,10 +120,14 @@ function ActivityForm({ onAdd }: { onAdd: (activity: Activity) => void }) {
       title: title.trim(),
       description: description.trim(),
       date: new Date().toISOString(),
+      startTime,
+      endTime,
       completed: false,
     });
     setTitle('');
     setDescription('');
+    setStartTime('');
+    setEndTime('');
     toast.success('Atividade adicionada!');
   };
 
@@ -138,6 +144,26 @@ function ActivityForm({ onAdd }: { onAdd: (activity: Activity) => void }) {
           className="bg-muted/30 border-border text-sm"
           required
         />
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label className="text-xs text-muted-foreground">Hora Início</Label>
+            <Input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className="bg-muted/30 border-border text-sm"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Hora Fim</Label>
+            <Input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className="bg-muted/30 border-border text-sm"
+            />
+          </div>
+        </div>
         <Textarea
           placeholder="Descrição (opcional)"
           value={description}
@@ -383,6 +409,12 @@ export function ProjectViewDialog({ open, onOpenChange, project, onEdit, onUpdat
                   </button>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium ${act.completed ? 'line-through text-muted-foreground' : ''}`}>{act.title}</p>
+                    {(act.startTime || act.endTime) && (
+                      <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {act.startTime && act.startTime}{act.startTime && act.endTime && ' — '}{act.endTime && act.endTime}
+                      </p>
+                    )}
                     {act.description && <p className="text-xs text-muted-foreground mt-0.5">{act.description}</p>}
                     {act.date && <p className="text-[10px] text-muted-foreground/60 mt-1">{format(new Date(act.date), "dd MMM yyyy", { locale: ptBR })}</p>}
                   </div>

@@ -38,6 +38,8 @@ export interface Activity {
   title: string;
   description: string;
   date: string;
+  startTime: string;
+  endTime: string;
   completed: boolean;
 }
 
