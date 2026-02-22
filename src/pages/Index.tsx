@@ -93,7 +93,7 @@ const Index = () => {
         ) : (
           <>
             <ProjectTimeChart projects={filteredProjects} />
-            <ProjectList projects={filteredProjects} onView={handleViewProject} onEdit={handleEditProject} onAddActivity={handleAddActivity} />
+            <ProjectList projects={filteredProjects} onView={handleViewProject} onEdit={handleEditProject} onAddActivity={handleAddActivity} onUpdate={updateProject} />
           </>
         )}
       </div>
