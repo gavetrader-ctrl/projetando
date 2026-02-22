@@ -146,6 +146,16 @@ export function ProjectList({ projects, onView, onEdit, onAddActivity, onUpdate 
                   <TooltipContent>Paralisar Projeto</TooltipContent>
                 </Tooltip>
               )}
+              {project.status !== 'finished' && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-success" onClick={(e) => handleFinishClick(e, project)}>
+                      <CheckCircle2 className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Finalizar Projeto</TooltipContent>
+                </Tooltip>
+              )}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => { e.stopPropagation(); onView(project); }}>
@@ -172,6 +182,16 @@ export function ProjectList({ projects, onView, onEdit, onAddActivity, onUpdate 
                 <PauseCircle className="h-3 w-3" /> Motivo da paralização:
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">{project.pauseReason}</p>
+            </div>
+          )}
+
+          {/* Final remarks banner */}
+          {project.status === 'finished' && project.finalRemarks && (
+            <div className="mt-2 px-3 py-2 rounded-md bg-success/10 border border-success/20">
+              <p className="text-xs text-success font-medium flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" /> Considerações finais:
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">{project.finalRemarks}</p>
             </div>
           )}
 
@@ -212,6 +232,36 @@ export function ProjectList({ projects, onView, onEdit, onAddActivity, onUpdate 
               <Button variant="outline" onClick={() => setPauseDialogOpen(false)}>Cancelar</Button>
               <Button onClick={handleConfirmPause} disabled={!pauseReason.trim()} className="bg-warning text-warning-foreground hover:bg-warning/90">
                 <PauseCircle className="h-4 w-4 mr-1" /> Paralisar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Finish Dialog */}
+      <Dialog open={finishDialogOpen} onOpenChange={setFinishDialogOpen}>
+        <DialogContent className="glass border-border max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-display gradient-text">Finalizar Projeto</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <p className="text-sm text-muted-foreground">
+              Registre as considerações finais de <strong>{finishingProject?.name}</strong>:
+            </p>
+            <div>
+              <Label className="text-xs text-muted-foreground">Considerações Finais *</Label>
+              <Textarea
+                placeholder="Descreva as considerações finais do projeto..."
+                value={finalRemarks}
+                onChange={(e) => setFinalRemarks(e.target.value)}
+                className="bg-muted/30 border-border text-sm min-h-[80px] mt-1"
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setFinishDialogOpen(false)}>Cancelar</Button>
+              <Button onClick={handleConfirmFinish} disabled={!finalRemarks.trim()} className="bg-success text-success-foreground hover:bg-success/90">
+                <CheckCircle2 className="h-4 w-4 mr-1" /> Finalizar
               </Button>
             </div>
           </div>

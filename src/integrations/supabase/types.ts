@@ -50,6 +50,7 @@ export type Database = {
           created_at: string
           description: string
           end_date: string | null
+          final_remarks: string
           financial: Json
           has_participants: boolean
           id: string
@@ -74,6 +75,7 @@ export type Database = {
           created_at?: string
           description?: string
           end_date?: string | null
+          final_remarks?: string
           financial?: Json
           has_participants?: boolean
           id?: string
@@ -98,6 +100,7 @@ export type Database = {
           created_at?: string
           description?: string
           end_date?: string | null
+          final_remarks?: string
           financial?: Json
           has_participants?: boolean
           id?: string
