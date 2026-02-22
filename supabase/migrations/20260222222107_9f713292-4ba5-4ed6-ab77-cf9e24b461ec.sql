@@ -1,0 +1,1 @@
+ALTER TABLE public.projects ADD COLUMN final_remarks text NOT NULL DEFAULT '';
