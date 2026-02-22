@@ -1,16 +1,22 @@
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { CalendarDays, Tag, Eye, Pencil, Plus } from 'lucide-react';
+import { CalendarDays, Tag, Eye, Pencil, Plus, PauseCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Project, ProjectStatus } from '@/types/project';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface ProjectListProps {
   projects: Project[];
   onView: (project: Project) => void;
   onEdit: (project: Project) => void;
   onAddActivity: (project: Project) => void;
+  onUpdate: (id: string, updates: Partial<Project>) => void;
 }
 
 const statusLabels: Record<ProjectStatus, string> = {
@@ -35,7 +41,26 @@ const typeLabels: Record<string, string> = {
   financial: 'Financeiro', health: 'Saúde', spiritual: 'Espiritual', other: 'Outro',
 };
 
-export function ProjectList({ projects, onView, onEdit, onAddActivity }: ProjectListProps) {
+export function ProjectList({ projects, onView, onEdit, onAddActivity, onUpdate }: ProjectListProps) {
+  const [pauseDialogOpen, setPauseDialogOpen] = useState(false);
+  const [pausingProject, setPausingProject] = useState<Project | null>(null);
+  const [pauseReason, setPauseReason] = useState('');
+
+  const handlePauseClick = (e: React.MouseEvent, project: Project) => {
+    e.stopPropagation();
+    setPausingProject(project);
+    setPauseReason('');
+    setPauseDialogOpen(true);
+  };
+
+  const handleConfirmPause = () => {
+    if (!pausingProject || !pauseReason.trim()) return;
+    onUpdate(pausingProject.id, { status: 'paused', pauseReason: pauseReason.trim() });
+    toast.success('Projeto paralisado.');
+    setPauseDialogOpen(false);
+    setPausingProject(null);
+  };
+
   if (projects.length === 0) {
     return (
       <div className="glass rounded-lg p-8 text-center">
@@ -92,6 +117,16 @@ export function ProjectList({ projects, onView, onEdit, onAddActivity }: Project
                 </TooltipTrigger>
                 <TooltipContent>Adicionar Atividade</TooltipContent>
               </Tooltip>
+              {project.status !== 'paused' && project.status !== 'finished' && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-warning" onClick={(e) => handlePauseClick(e, project)}>
+                      <PauseCircle className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Paralisar Projeto</TooltipContent>
+                </Tooltip>
+              )}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => { e.stopPropagation(); onView(project); }}>
@@ -111,6 +146,16 @@ export function ProjectList({ projects, onView, onEdit, onAddActivity }: Project
             </div>
           </div>
 
+          {/* Pause reason banner */}
+          {project.status === 'paused' && project.pauseReason && (
+            <div className="mt-2 px-3 py-2 rounded-md bg-warning/10 border border-warning/20">
+              <p className="text-xs text-warning font-medium flex items-center gap-1">
+                <PauseCircle className="h-3 w-3" /> Motivo da paralização:
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">{project.pauseReason}</p>
+            </div>
+          )}
+
           {/* Progress bar */}
           <div className="mt-3">
             <div className="flex justify-between text-xs mb-1">
@@ -123,6 +168,36 @@ export function ProjectList({ projects, onView, onEdit, onAddActivity }: Project
           </div>
         </motion.div>
       ))}
+
+      {/* Pause Dialog */}
+      <Dialog open={pauseDialogOpen} onOpenChange={setPauseDialogOpen}>
+        <DialogContent className="glass border-border max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-display gradient-text">Paralisar Projeto</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <p className="text-sm text-muted-foreground">
+              Informe o motivo da paralização de <strong>{pausingProject?.name}</strong>:
+            </p>
+            <div>
+              <Label className="text-xs text-muted-foreground">Motivo *</Label>
+              <Textarea
+                placeholder="Descreva o motivo da paralização..."
+                value={pauseReason}
+                onChange={(e) => setPauseReason(e.target.value)}
+                className="bg-muted/30 border-border text-sm min-h-[80px] mt-1"
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setPauseDialogOpen(false)}>Cancelar</Button>
+              <Button onClick={handleConfirmPause} disabled={!pauseReason.trim()} className="bg-warning text-warning-foreground hover:bg-warning/90">
+                <PauseCircle className="h-4 w-4 mr-1" /> Paralisar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

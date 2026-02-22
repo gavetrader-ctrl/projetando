@@ -56,6 +56,7 @@ export type Database = {
           name: string
           observations: string
           participants: Json
+          pause_reason: string
           priority: string
           progress: number
           project_attachments: Json
@@ -79,6 +80,7 @@ export type Database = {
           name: string
           observations?: string
           participants?: Json
+          pause_reason?: string
           priority?: string
           progress?: number
           project_attachments?: Json
@@ -102,6 +104,7 @@ export type Database = {
           name?: string
           observations?: string
           participants?: Json
+          pause_reason?: string
           priority?: string
           progress?: number
           project_attachments?: Json

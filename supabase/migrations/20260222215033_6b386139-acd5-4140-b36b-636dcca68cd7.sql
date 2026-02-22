@@ -1,0 +1,1 @@
+ALTER TABLE public.projects ADD COLUMN pause_reason text NOT NULL DEFAULT '';

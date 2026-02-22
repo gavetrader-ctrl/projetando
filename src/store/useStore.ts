@@ -23,6 +23,7 @@ function mapProjectFromDb(row: any): Project {
     returnFrequency: row.return_frequency,
     observations: row.observations,
     activities: row.activities || [],
+    pauseReason: row.pause_reason || '',
     createdAt: row.created_at,
   };
 }
@@ -48,6 +49,7 @@ function mapProjectToDb(project: Project, userId: string) {
     return_frequency: project.returnFrequency,
     observations: project.observations,
     activities: project.activities as any,
+    pause_reason: project.pauseReason || '',
   };
 }
 
@@ -119,6 +121,7 @@ export function useProjects() {
     if (updates.returnFrequency !== undefined) dbUpdates.return_frequency = updates.returnFrequency;
     if (updates.observations !== undefined) dbUpdates.observations = updates.observations;
     if (updates.activities !== undefined) dbUpdates.activities = updates.activities;
+    if (updates.pauseReason !== undefined) dbUpdates.pause_reason = updates.pauseReason;
 
     const { data, error } = await supabase.from('projects').update(dbUpdates).eq('id', id).eq('user_id', user.id).select().single();
     if (!error && data) setProjects(prev => prev.map(p => p.id === id ? mapProjectFromDb(data) : p));

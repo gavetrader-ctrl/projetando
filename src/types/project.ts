@@ -62,6 +62,7 @@ export interface Project {
   returnFrequency: ReturnFrequency;
   observations: string;
   activities: Activity[];
+  pauseReason: string;
   createdAt: string;
 }
 
