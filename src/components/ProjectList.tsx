@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { CalendarDays, Tag, Eye, Pencil, Plus, PauseCircle } from 'lucide-react';
+import { CalendarDays, Tag, Eye, Pencil, Plus, PauseCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -46,6 +46,10 @@ export function ProjectList({ projects, onView, onEdit, onAddActivity, onUpdate 
   const [pausingProject, setPausingProject] = useState<Project | null>(null);
   const [pauseReason, setPauseReason] = useState('');
 
+  const [finishDialogOpen, setFinishDialogOpen] = useState(false);
+  const [finishingProject, setFinishingProject] = useState<Project | null>(null);
+  const [finalRemarks, setFinalRemarks] = useState('');
+
   const handlePauseClick = (e: React.MouseEvent, project: Project) => {
     e.stopPropagation();
     setPausingProject(project);
@@ -59,6 +63,21 @@ export function ProjectList({ projects, onView, onEdit, onAddActivity, onUpdate 
     toast.success('Projeto paralisado.');
     setPauseDialogOpen(false);
     setPausingProject(null);
+  };
+
+  const handleFinishClick = (e: React.MouseEvent, project: Project) => {
+    e.stopPropagation();
+    setFinishingProject(project);
+    setFinalRemarks('');
+    setFinishDialogOpen(true);
+  };
+
+  const handleConfirmFinish = () => {
+    if (!finishingProject || !finalRemarks.trim()) return;
+    onUpdate(finishingProject.id, { status: 'finished', progress: 100, finalRemarks: finalRemarks.trim() });
+    toast.success('Projeto finalizado!');
+    setFinishDialogOpen(false);
+    setFinishingProject(null);
   };
 
   if (projects.length === 0) {

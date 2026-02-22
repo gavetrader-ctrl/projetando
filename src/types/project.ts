@@ -63,6 +63,7 @@ export interface Project {
   observations: string;
   activities: Activity[];
   pauseReason: string;
+  finalRemarks: string;
   createdAt: string;
 }
 
