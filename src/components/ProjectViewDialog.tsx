@@ -200,9 +200,10 @@ export function ProjectViewDialog({ open, onOpenChange, project, onEdit, onUpdat
     const updatedActivities = [...(project.activities || []), activity];
     const updates: Partial<Project> = { activities: updatedActivities };
 
-    // Auto-change status from planning to active when adding first activity
-    if (project.status === 'planning') {
+    // Auto-change status to active when adding activity to planning or paused project
+    if (project.status === 'planning' || project.status === 'paused') {
       updates.status = 'active';
+      updates.pauseReason = '';
       toast.info('Projeto alterado para Ativo automaticamente!');
     }
 
