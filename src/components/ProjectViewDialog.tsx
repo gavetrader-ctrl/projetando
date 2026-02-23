@@ -110,6 +110,7 @@ function CostTable({ label, items }: { label: string; items: { description: stri
 function ActivityForm({ onAdd }: { onAdd: (activity: Activity) => void }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [activityDate, setActivityDate] = useState(new Date().toISOString().split('T')[0]);
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
 
@@ -120,13 +121,14 @@ function ActivityForm({ onAdd }: { onAdd: (activity: Activity) => void }) {
       id: crypto.randomUUID(),
       title: title.trim(),
       description: description.trim(),
-      date: new Date().toISOString(),
+      date: new Date(activityDate + 'T12:00:00').toISOString(),
       startTime,
       endTime,
       completed: false,
     });
     setTitle('');
     setDescription('');
+    setActivityDate(new Date().toISOString().split('T')[0]);
     setStartTime('');
     setEndTime('');
     toast.success('Atividade adicionada!');
@@ -145,7 +147,16 @@ function ActivityForm({ onAdd }: { onAdd: (activity: Activity) => void }) {
           className="bg-muted/30 border-border text-sm"
           required
         />
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <Label className="text-xs text-muted-foreground">Data</Label>
+            <Input
+              type="date"
+              value={activityDate}
+              onChange={(e) => setActivityDate(e.target.value)}
+              className="bg-muted/30 border-border text-sm"
+            />
+          </div>
           <div>
             <Label className="text-xs text-muted-foreground">Hora Início</Label>
             <Input
