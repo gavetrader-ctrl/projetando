@@ -43,12 +43,11 @@ export function ProjectTimeChart({ projects }: ProjectTimeChartProps) {
         const workedHours = Math.round(calcWorkedHours(p) * 10) / 10;
         const totalDays = calcProjectDurationDays(p);
         const activeDays = calcActiveDays(p);
-        const idleDays = Math.max(totalDays - activeDays, 0);
         return {
           name: p.name.length > 15 ? p.name.slice(0, 15) + '…' : p.name,
           horasTrabalhadas: workedHours,
           diasAtivos: activeDays,
-          diasOciosos: idleDays,
+          diasDesdeInicio: totalDays,
         };
       });
   }, [projects]);
@@ -82,7 +81,7 @@ export function ProjectTimeChart({ projects }: ProjectTimeChartProps) {
                 const labels: Record<string, string> = {
                   horasTrabalhadas: 'Horas Trabalhadas',
                   diasAtivos: 'Dias com Atividade',
-                  diasOciosos: 'Dias sem Atividade',
+                  diasDesdeInicio: 'Dias desde o Início',
                 };
                 const unit = name === 'horasTrabalhadas' ? 'h' : 'd';
                 return [`${value}${unit}`, labels[name] || name];
@@ -93,7 +92,7 @@ export function ProjectTimeChart({ projects }: ProjectTimeChartProps) {
                 const labels: Record<string, string> = {
                   horasTrabalhadas: 'Horas Trabalhadas',
                   diasAtivos: 'Dias com Atividade',
-                  diasOciosos: 'Dias sem Atividade',
+                  diasDesdeInicio: 'Dias desde o Início',
                 };
                 return labels[value] || value;
               }}
@@ -101,7 +100,7 @@ export function ProjectTimeChart({ projects }: ProjectTimeChartProps) {
             />
             <Bar dataKey="horasTrabalhadas" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
             <Bar dataKey="diasAtivos" fill="hsl(var(--chart-2, 142 71% 45%))" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="diasOciosos" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="diasDesdeInicio" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
