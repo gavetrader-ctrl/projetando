@@ -43,6 +43,18 @@ export interface Activity {
   completed: boolean;
 }
 
+export interface ProjectInfrastructure {
+  githubUrl?: string;         // Ex: https://github.com/user/repo
+  githubAccount?: string;     // Ex: usuario-github
+  platformUrl?: string;       // Ex: Painel do Lovable, Google Cloud, Firebase
+  platformAccount?: string;   // Ex: email-da-nuvem@google.com
+  hostedUrl?: string;         // Ex: https://meuapp.vercel.app
+  hostedAccount?: string;     // Ex: conta da Vercel / Cloudflare
+  localPath?: string;         // Ex: C:\Antigravi 01\meu-projeto
+  antigravityEnabled?: boolean; // Está no Antigravity (VS Code local)?
+  notes?: string;             // Observações de infra
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -65,6 +77,7 @@ export interface Project {
   pauseReason: string;
   finalRemarks: string;
   createdAt: string;
+  infrastructure?: ProjectInfrastructure;
 }
 
 export interface Idea {

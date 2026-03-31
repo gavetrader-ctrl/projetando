@@ -6,8 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Trash2 } from 'lucide-react';
-import { Project, Attachment, Participant, CostItem, ProjectType, Priority, ReturnTimeline, ReturnFrequency } from '@/types/project';
+import { Plus, Trash2, Github, Globe, HardDrive, MapPin } from 'lucide-react';
+import { Project, Attachment, Participant, CostItem, ProjectType, Priority, ReturnTimeline, ReturnFrequency, ProjectInfrastructure } from '@/types/project';
 
 interface ProjectFormDialogProps {
   open: boolean;
@@ -23,6 +23,7 @@ const emptyProject = (): Partial<Project> => ({
   studyAttachments: [], projectAttachments: [],
   financial: { totalBudget: 0, fixedCosts: [], variableCosts: [], reserve: [], unexpected: [], goal: '' },
   returnTimeline: 'medium', returnFrequency: 'once', observations: '', activities: [],
+  infrastructure: { githubUrl: '', githubAccount: '', platformUrl: '', platformAccount: '', hostedUrl: '', hostedAccount: '', localPath: '', antigravityEnabled: false, notes: '' },
 });
 
 export function ProjectFormDialog({ open, onOpenChange, onSubmit, editingProject }: ProjectFormDialogProps) {
@@ -95,7 +96,12 @@ export function ProjectFormDialog({ open, onOpenChange, onSubmit, editingProject
     onOpenChange(false);
   };
 
-  const steps = ['Básico', 'Anexos', 'Equipe', 'Financeiro', 'Detalhes'];
+  const steps = ['Básico', 'Anexos', 'Equipe', 'Financeiro', 'Detalhes', 'Localização'];
+
+  const setInfra = (key: keyof ProjectInfrastructure, value: any) => setForm(prev => ({
+    ...prev,
+    infrastructure: { ...(prev.infrastructure || {}), [key]: value }
+  }));
 
   const renderCostSection = (label: string, key: 'fixedCosts' | 'variableCosts' | 'reserve' | 'unexpected') => (
     <div className="space-y-2">
@@ -293,6 +299,94 @@ export function ProjectFormDialog({ open, onOpenChange, onSubmit, editingProject
               <div>
                 <Label>Observações</Label>
                 <Textarea value={form.observations} onChange={e => set('observations', e.target.value)} placeholder="Observações gerais..." className="bg-muted/50 border-border" />
+              </div>
+            </>
+          )}
+
+          {step === 5 && (
+            <>
+              <p className="text-xs text-muted-foreground">Registre onde esse projeto vive: código, painel de IA, hospedagem e pasta local.</p>
+
+              <div className="space-y-1.5">
+                <Label className="flex items-center gap-1.5"><Github className="w-3.5 h-3.5" /> Repositório GitHub</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={form.infrastructure?.githubUrl || ''}
+                    onChange={e => setInfra('githubUrl', e.target.value)}
+                    placeholder="URL (Ex: https://github.com/...)"
+                    className="bg-muted/50 border-border flex-1"
+                  />
+                  <Input
+                    value={form.infrastructure?.githubAccount || ''}
+                    onChange={e => setInfra('githubAccount', e.target.value)}
+                    placeholder="Conta GitHub"
+                    className="bg-muted/50 border-border w-[35%]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="flex items-center gap-1.5"><Globe className="w-3.5 h-3.5 text-purple-400" /> Painel da Plataforma / Cloud</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={form.infrastructure?.platformUrl || ''}
+                    onChange={e => setInfra('platformUrl', e.target.value)}
+                    placeholder="Link do Firebase, Supabase, Lovable..."
+                    className="bg-muted/50 border-border flex-1"
+                  />
+                  <Input
+                    value={form.infrastructure?.platformAccount || ''}
+                    onChange={e => setInfra('platformAccount', e.target.value)}
+                    placeholder="Conta de Login"
+                    className="bg-muted/50 border-border w-[35%]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="flex items-center gap-1.5"><Globe className="w-3.5 h-3.5 text-green-400" /> URL Hospedada (Vercel / Domínio)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={form.infrastructure?.hostedUrl || ''}
+                    onChange={e => setInfra('hostedUrl', e.target.value)}
+                    placeholder="URL de Produção"
+                    className="bg-muted/50 border-border flex-1"
+                  />
+                  <Input
+                    value={form.infrastructure?.hostedAccount || ''}
+                    onChange={e => setInfra('hostedAccount', e.target.value)}
+                    placeholder="Conta de Deploy"
+                    className="bg-muted/50 border-border w-[35%]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-yellow-400" /> Pasta Local (Antigravity)</Label>
+                <Input
+                  value={form.infrastructure?.localPath || ''}
+                  onChange={e => setInfra('localPath', e.target.value)}
+                  placeholder="Ex: Antigravi 01\Nome-do-Projeto"
+                  className="bg-muted/50 border-border"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 py-1">
+                <Switch
+                  checked={form.infrastructure?.antigravityEnabled || false}
+                  onCheckedChange={v => setInfra('antigravityEnabled', v)}
+                />
+                <Label className="flex items-center gap-1.5"><HardDrive className="w-3.5 h-3.5 text-blue-400" /> Ativo no Antigravity (VS Code local)</Label>
+              </div>
+
+              <div>
+                <Label>Notas de Infraestrutura</Label>
+                <Textarea
+                  value={form.infrastructure?.notes || ''}
+                  onChange={e => setInfra('notes', e.target.value)}
+                  placeholder="Ex: Banco no Supabase projeto XYZ, deploy auto na Vercel..."
+                  className="bg-muted/50 border-border"
+                />
               </div>
             </>
           )}

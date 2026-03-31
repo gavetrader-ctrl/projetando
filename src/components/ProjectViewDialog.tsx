@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Project, Attachment, Activity } from '@/types/project';
 import {
   CalendarDays, Tag, Users, DollarSign, FileText, Pencil, ExternalLink, Copy, Upload,
-  Lightbulb, Clock, TrendingUp, Paperclip, CheckCircle2, Circle, Plus, Trash2
+  Lightbulb, Clock, TrendingUp, Paperclip, CheckCircle2, Circle, Plus, Trash2,
+  Github, Globe, HardDrive, MapPin
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRef, useState } from 'react';
@@ -341,6 +342,51 @@ export function ProjectViewDialog({ open, onOpenChange, project, onEdit, onUpdat
               <div>
                 <h4 className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Observações</h4>
                 <p className="text-sm text-muted-foreground italic">{project.observations}</p>
+              </div>
+            )}
+
+            {project.infrastructure && (
+              <div className="pt-2 border-t border-border/30">
+                <h4 className="text-xs text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1">
+                  <HardDrive className="h-3 w-3" /> Infraestrutura e Links
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {project.infrastructure.githubUrl && (
+                    <a href={project.infrastructure.githubUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm glass p-2 rounded-md hover:bg-muted/50 transition-colors">
+                      <Github className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <span className="truncate">GitHub Repo {project.infrastructure.githubAccount && <span className="opacity-70 text-xs font-normal">({project.infrastructure.githubAccount})</span>}</span>
+                    </a>
+                  )}
+                  {project.infrastructure.platformUrl && (
+                    <a href={project.infrastructure.platformUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm glass p-2 rounded-md hover:bg-muted/50 transition-colors">
+                      <Globe className="w-4 h-4 text-purple-400 shrink-0" />
+                      <span className="truncate">Painel / Cloud {project.infrastructure.platformAccount && <span className="opacity-70 text-xs font-normal">({project.infrastructure.platformAccount})</span>}</span>
+                    </a>
+                  )}
+                  {project.infrastructure.hostedUrl && (
+                    <a href={project.infrastructure.hostedUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm glass p-2 rounded-md hover:bg-muted/50 transition-colors">
+                      <Globe className="w-4 h-4 text-green-400 shrink-0" />
+                      <span className="truncate">Produção {project.infrastructure.hostedAccount && <span className="opacity-70 text-xs font-normal">({project.infrastructure.hostedAccount})</span>}</span>
+                    </a>
+                  )}
+                  {project.infrastructure.localPath && (
+                    <div className="flex items-center gap-2 text-sm glass p-2 rounded-md" title="Pasta Local">
+                      <MapPin className="w-4 h-4 text-yellow-500 shrink-0" />
+                      <span className="truncate text-muted-foreground">{project.infrastructure.localPath}</span>
+                    </div>
+                  )}
+                  {project.infrastructure.antigravityEnabled && (
+                    <div className="flex items-center gap-2 text-sm glass p-2 rounded-md sm:col-span-2">
+                      <HardDrive className="w-4 h-4 text-blue-400 shrink-0" />
+                      <span>Desenvolvimento Local ativo (Antigravity CPU)</span>
+                    </div>
+                  )}
+                </div>
+                {project.infrastructure.notes && (
+                  <p className="text-xs text-muted-foreground mt-2 italic bg-muted/20 p-2 rounded-md border border-border/30">
+                    {project.infrastructure.notes}
+                  </p>
+                )}
               </div>
             )}
           </TabsContent>
