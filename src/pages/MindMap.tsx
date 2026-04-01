@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useEffect, useState, useCallback } from 'react';
 import {
   ReactFlow,
   Background,
@@ -10,14 +10,16 @@ import {
   useEdgesState,
   ConnectionMode,
   Panel,
+  NodeMouseHandler,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useProjects, useIdeas } from '@/store/useStore';
 import { Project, Idea } from '@/types/project';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { MindMapNode } from '@/components/mindmap/MindMapNode';
+import { MindMapEditPanel } from '@/components/mindmap/MindMapEditPanel';
 
 const nodeTypes = { mindMapNode: MindMapNode };
 
@@ -56,7 +58,6 @@ function buildNodes(projects: Project[], ideas: Idea[]): Node[] {
   const centerX = 0;
   const centerY = 0;
 
-  // Central node
   nodes.push({
     id: 'root',
     type: 'mindMapNode',
@@ -68,7 +69,6 @@ function buildNodes(projects: Project[], ideas: Idea[]): Node[] {
     },
   });
 
-  // Projects branch
   const projectsBranchX = centerX - 400;
   const projectsBranchY = centerY - 50;
 
@@ -83,7 +83,6 @@ function buildNodes(projects: Project[], ideas: Idea[]): Node[] {
     },
   });
 
-  // Ideas branch
   const ideasBranchX = centerX + 400;
   const ideasBranchY = centerY - 50;
 
@@ -98,7 +97,6 @@ function buildNodes(projects: Project[], ideas: Idea[]): Node[] {
     },
   });
 
-  // Project nodes
   const projectSpacing = 220;
   const projectStartY = projectsBranchY - ((projects.length - 1) * projectSpacing) / 2;
 
@@ -115,6 +113,7 @@ function buildNodes(projects: Project[], ideas: Idea[]): Node[] {
         label: project.name,
         nodeType: 'project',
         color: statusColor,
+        entityId: project.id,
         details: [
           { key: 'Status', value: STATUS_LABELS[project.status] || project.status },
           { key: 'Tipo', value: TYPE_LABELS[project.type] || project.type },
@@ -127,7 +126,6 @@ function buildNodes(projects: Project[], ideas: Idea[]): Node[] {
       },
     });
 
-    // Sub-nodes for activities (max 5)
     const visibleActivities = project.activities.slice(0, 5);
     visibleActivities.forEach((activity, j) => {
       nodes.push({
@@ -139,14 +137,14 @@ function buildNodes(projects: Project[], ideas: Idea[]): Node[] {
           nodeType: 'leaf',
           color: activity.completed ? 'hsl(150 60% 45%)' : 'hsl(200 80% 55%)',
           completed: activity.completed,
+          entityId: project.id,
+          activityId: activity.id,
         },
       });
     });
 
-    // Sub-nodes for participants (max 3)
     if (project.participants.length > 0) {
-      const visibleParticipants = project.participants.slice(0, 3);
-      visibleParticipants.forEach((participant, j) => {
+      project.participants.slice(0, 3).forEach((participant, j) => {
         nodes.push({
           id: `participant-${project.id}-${participant.id}`,
           type: 'mindMapNode',
@@ -161,7 +159,6 @@ function buildNodes(projects: Project[], ideas: Idea[]): Node[] {
     }
   });
 
-  // Idea nodes
   const ideaSpacing = 180;
   const ideaStartY = ideasBranchY - ((ideas.length - 1) * ideaSpacing) / 2;
 
@@ -177,6 +174,7 @@ function buildNodes(projects: Project[], ideas: Idea[]): Node[] {
         label: idea.title,
         nodeType: 'idea',
         color: 'hsl(40 90% 55%)',
+        entityId: idea.id,
         details: [
           ...(idea.observation ? [{ key: 'Obs', value: idea.observation }] : []),
           ...(idea.attachments.length > 0 ? [{ key: 'Anexos', value: `${idea.attachments.length}` }] : []),
@@ -185,7 +183,6 @@ function buildNodes(projects: Project[], ideas: Idea[]): Node[] {
       },
     });
 
-    // Sub-nodes for attachments
     idea.attachments.slice(0, 3).forEach((att, j) => {
       nodes.push({
         id: `att-${idea.id}-${att.id}`,
@@ -278,55 +275,130 @@ function buildEdges(projects: Project[], ideas: Idea[]): Edge[] {
 }
 
 export default function MindMap() {
-  const { projects } = useProjects();
-  const { ideas } = useIdeas();
+  const { projects, updateProject } = useProjects();
+  const { ideas, updateIdea } = useIdeas();
   const navigate = useNavigate();
 
-  const initialNodes = useMemo(() => buildNodes(projects, ideas), [projects, ideas]);
-  const initialEdges = useMemo(() => buildEdges(projects, ideas), [projects, ideas]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
 
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+  const computedNodes = useMemo(() => buildNodes(projects, ideas), [projects, ideas]);
+  const computedEdges = useMemo(() => buildEdges(projects, ideas), [projects, ideas]);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(computedNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(computedEdges);
+
+  // Sync nodes/edges when data changes, preserving user-dragged positions
+  useEffect(() => {
+    setNodes((prev) => {
+      const posMap = new Map(prev.map(n => [n.id, n.position]));
+      return computedNodes.map(n => ({
+        ...n,
+        position: posMap.get(n.id) || n.position,
+      }));
+    });
+    setEdges(computedEdges);
+  }, [computedNodes, computedEdges, setNodes, setEdges]);
+
+  const handleNodeClick: NodeMouseHandler = useCallback((_event, node) => {
+    const data = node.data as any;
+    if (data.nodeType === 'project') {
+      const project = projects.find(p => p.id === data.entityId);
+      if (project) {
+        setSelectedProject(project);
+        setSelectedIdea(null);
+      }
+    } else if (data.nodeType === 'idea') {
+      const idea = ideas.find(i => i.id === data.entityId);
+      if (idea) {
+        setSelectedIdea(idea);
+        setSelectedProject(null);
+      }
+    } else if (data.nodeType === 'leaf' && data.entityId && data.activityId) {
+      // Toggle activity completion
+      const project = projects.find(p => p.id === data.entityId);
+      if (project) {
+        const updatedActivities = project.activities.map(a =>
+          a.id === data.activityId ? { ...a, completed: !a.completed } : a
+        );
+        updateProject(project.id, { activities: updatedActivities });
+      }
+    }
+  }, [projects, ideas, updateProject]);
+
+  const handleResetLayout = useCallback(() => {
+    setNodes(computedNodes);
+  }, [computedNodes, setNodes]);
+
+  const handleClosePanel = useCallback(() => {
+    setSelectedProject(null);
+    setSelectedIdea(null);
+  }, []);
 
   return (
-    <div className="h-screen w-screen bg-background">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
-        connectionMode={ConnectionMode.Loose}
-        fitView
-        fitViewOptions={{ padding: 0.3 }}
-        minZoom={0.1}
-        maxZoom={2}
-        proOptions={{ hideAttribution: true }}
-      >
-        <Background color="hsl(200 15% 18%)" gap={24} size={1} />
-        <Controls
-          className="!bg-card !border-border !rounded-lg !shadow-lg [&>button]:!bg-card [&>button]:!border-border [&>button]:!text-foreground [&>button:hover]:!bg-secondary"
+    <div className="h-screen w-screen bg-background flex">
+      <div className="flex-1 relative">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onNodeClick={handleNodeClick}
+          nodeTypes={nodeTypes}
+          connectionMode={ConnectionMode.Loose}
+          fitView
+          fitViewOptions={{ padding: 0.3 }}
+          minZoom={0.1}
+          maxZoom={2}
+          proOptions={{ hideAttribution: true }}
+        >
+          <Background color="hsl(200 15% 18%)" gap={24} size={1} />
+          <Controls
+            className="!bg-card !border-border !rounded-lg !shadow-lg [&>button]:!bg-card [&>button]:!border-border [&>button]:!text-foreground [&>button:hover]:!bg-secondary"
+          />
+          <MiniMap
+            nodeColor={(node) => (node.data as any)?.color || 'hsl(175 80% 50%)'}
+            maskColor="hsl(220 20% 7% / 0.8)"
+            className="!bg-card !border-border !rounded-lg"
+          />
+          <Panel position="top-left" className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="border-primary/30 hover:border-primary hover:bg-primary/10 text-primary gap-2 glass"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Dashboard
+            </Button>
+            <h1 className="text-lg font-bold gradient-text text-display tracking-wider">
+              Mapa Mental
+            </h1>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleResetLayout}
+              className="text-muted-foreground hover:text-primary gap-1"
+              title="Resetar layout"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+            </Button>
+          </Panel>
+          <Panel position="bottom-left" className="text-xs text-muted-foreground glass px-3 py-1.5 rounded-lg">
+            Clique em um projeto ou ideia para editar • Arraste os nós para reorganizar
+          </Panel>
+        </ReactFlow>
+      </div>
+
+      {(selectedProject || selectedIdea) && (
+        <MindMapEditPanel
+          project={selectedProject}
+          idea={selectedIdea}
+          onUpdateProject={updateProject}
+          onUpdateIdea={updateIdea}
+          onClose={handleClosePanel}
         />
-        <MiniMap
-          nodeColor={(node) => (node.data as any)?.color || 'hsl(175 80% 50%)'}
-          maskColor="hsl(220 20% 7% / 0.8)"
-          className="!bg-card !border-border !rounded-lg"
-        />
-        <Panel position="top-left" className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="border-primary/30 hover:border-primary hover:bg-primary/10 text-primary gap-2 glass"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Dashboard
-          </Button>
-          <h1 className="text-lg font-bold gradient-text text-display tracking-wider">
-            Mapa Mental
-          </h1>
-        </Panel>
-      </ReactFlow>
+      )}
     </div>
   );
 }
