@@ -19,6 +19,7 @@ export function DashboardHeader({ onAddIdea, onAddProject }: DashboardHeaderProp
   const [ideaOpen, setIdeaOpen] = useState(false);
   const [projectOpen, setProjectOpen] = useState(false);
   const { signOut } = useAuth();
+  const navigate = useNavigate();
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
