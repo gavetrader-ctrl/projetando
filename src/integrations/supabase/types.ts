@@ -54,6 +54,7 @@ export type Database = {
           financial: Json
           has_participants: boolean
           id: string
+          infrastructure: Json
           name: string
           observations: string
           participants: Json
@@ -79,6 +80,7 @@ export type Database = {
           financial?: Json
           has_participants?: boolean
           id?: string
+          infrastructure?: Json
           name: string
           observations?: string
           participants?: Json
@@ -104,6 +106,7 @@ export type Database = {
           financial?: Json
           has_participants?: boolean
           id?: string
+          infrastructure?: Json
           name?: string
           observations?: string
           participants?: Json
