@@ -52,6 +52,7 @@ function mapProjectToDb(project: Project, userId: string) {
     activities: project.activities as any,
     pause_reason: project.pauseReason || '',
     final_remarks: project.finalRemarks || '',
+    infrastructure: (project.infrastructure || {}) as any,
   };
 }
 
