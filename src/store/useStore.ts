@@ -26,6 +26,7 @@ function mapProjectFromDb(row: any): Project {
     pauseReason: row.pause_reason || '',
     finalRemarks: row.final_remarks || '',
     createdAt: row.created_at,
+    infrastructure: row.infrastructure || {},
   };
 }
 
