@@ -40,6 +40,15 @@ export function DashboardHeader({ onAddIdea, onAddProject }: DashboardHeaderProp
       <div className="flex gap-3">
         <Button
           variant="outline"
+          onClick={() => navigate('/mindmap')}
+          className="border-accent/30 hover:border-accent hover:bg-accent/10 text-accent gap-2"
+          title="Mapa Mental"
+        >
+          <Network className="h-4 w-4" />
+          <span className="hidden sm:inline">Mapa</span>
+        </Button>
+        <Button
+          variant="outline"
           onClick={() => setIdeaOpen(true)}
           className="border-primary/30 hover:border-primary hover:bg-primary/10 text-primary gap-2 glow-primary"
         >
