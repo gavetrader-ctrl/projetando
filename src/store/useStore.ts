@@ -127,6 +127,7 @@ export function useProjects() {
     if (updates.activities !== undefined) dbUpdates.activities = updates.activities;
     if (updates.pauseReason !== undefined) dbUpdates.pause_reason = updates.pauseReason;
     if (updates.finalRemarks !== undefined) dbUpdates.final_remarks = updates.finalRemarks;
+    if (updates.infrastructure !== undefined) dbUpdates.infrastructure = updates.infrastructure;
 
     const { data, error } = await supabase.from('projects').update(dbUpdates).eq('id', id).eq('user_id', user.id).select().single();
     if (!error && data) setProjects(prev => prev.map(p => p.id === id ? mapProjectFromDb(data) : p));
