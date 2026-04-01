@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Lightbulb, Plus, LogOut } from 'lucide-react';
+import { Lightbulb, Plus, LogOut, Network } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IdeaFormDialog } from './IdeaFormDialog';
 import { ProjectFormDialog } from './ProjectFormDialog';
 import { Idea, Project } from '@/types/project';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 interface DashboardHeaderProps {
@@ -18,6 +19,7 @@ export function DashboardHeader({ onAddIdea, onAddProject }: DashboardHeaderProp
   const [ideaOpen, setIdeaOpen] = useState(false);
   const [projectOpen, setProjectOpen] = useState(false);
   const { signOut } = useAuth();
+  const navigate = useNavigate();
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
@@ -36,6 +38,15 @@ export function DashboardHeader({ onAddIdea, onAddProject }: DashboardHeaderProp
         </p>
       </div>
       <div className="flex gap-3">
+        <Button
+          variant="outline"
+          onClick={() => navigate('/mindmap')}
+          className="border-accent/30 hover:border-accent hover:bg-accent/10 text-accent gap-2"
+          title="Mapa Mental"
+        >
+          <Network className="h-4 w-4" />
+          <span className="hidden sm:inline">Mapa</span>
+        </Button>
         <Button
           variant="outline"
           onClick={() => setIdeaOpen(true)}
