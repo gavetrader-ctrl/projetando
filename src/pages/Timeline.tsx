@@ -154,6 +154,7 @@ export default function Timeline() {
         color: STATUS_COLORS[p.status] || 'hsl(var(--primary))',
         activityDates,
       });
+    });
     ideas.forEach(i => {
       if (!i.createdAt) return;
       const sd = parseISO(i.createdAt);
