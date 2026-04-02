@@ -136,6 +136,13 @@ export default function Timeline() {
       const sd = parseISO(p.startDate);
       if (isNaN(sd.getTime())) return;
       const ed = p.endDate ? parseISO(p.endDate) : null;
+      const activityDates: Date[] = [];
+      if (p.activities && Array.isArray(p.activities)) {
+        (p.activities as any[]).forEach(a => {
+          const ad = a.date ? parseISO(a.date) : null;
+          if (ad && !isNaN(ad.getTime())) activityDates.push(ad);
+        });
+      }
       result.push({
         id: p.id,
         type: 'project',
@@ -145,8 +152,8 @@ export default function Timeline() {
         status: p.status,
         priority: p.priority,
         color: STATUS_COLORS[p.status] || 'hsl(var(--primary))',
+        activityDates,
       });
-    });
     ideas.forEach(i => {
       if (!i.createdAt) return;
       const sd = parseISO(i.createdAt);
