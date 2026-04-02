@@ -320,10 +320,14 @@ export default function Timeline() {
                 );
               }
 
+              const barStart = Math.max(item.startDate.getTime(), start.getTime());
+              const barEnd = item.endDate ? Math.min(item.endDate.getTime(), end.getTime()) : barStart + totalMs * 0.05;
+              const barMs = barEnd - barStart;
+
               return (
                 <div
                   key={item.id}
-                  className="absolute flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-medium cursor-default truncate shadow-md transition-transform hover:scale-[1.02] hover:z-30"
+                  className="absolute flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-medium cursor-default shadow-md transition-transform hover:scale-[1.02] hover:z-30 overflow-hidden"
                   style={{
                     left: `${left}%`,
                     width: `${width}%`,
@@ -337,6 +341,21 @@ export default function Timeline() {
                 >
                   <Folder className="h-3 w-3 shrink-0" />
                   <span className="truncate">{item.title}</span>
+
+                  {/* Activity markers */}
+                  {item.activityDates && barMs > 0 && item.activityDates
+                    .filter(ad => ad.getTime() >= barStart && ad.getTime() <= barEnd)
+                    .map((ad, idx) => {
+                      const pct = ((ad.getTime() - barStart) / barMs) * 100;
+                      return (
+                        <div
+                          key={idx}
+                          className="absolute top-0 w-1 h-full opacity-60"
+                          style={{ left: `${pct}%`, backgroundColor: 'hsl(var(--primary-foreground))' }}
+                          title={`Atividade em ${format(ad, 'dd/MM/yyyy')}`}
+                        />
+                      );
+                    })}
                 </div>
               );
             })}
