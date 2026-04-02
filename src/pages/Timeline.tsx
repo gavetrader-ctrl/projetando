@@ -24,6 +24,7 @@ interface TimelineItem {
   status?: string;
   priority?: string;
   color: string;
+  activityDates?: Date[];
 }
 
 const STATUS_COLORS: Record<string, string> = {
