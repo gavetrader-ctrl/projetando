@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Lightbulb, Plus, LogOut, Network } from 'lucide-react';
+import { Lightbulb, Plus, LogOut, Network, CalendarRange } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IdeaFormDialog } from './IdeaFormDialog';
 import { ProjectFormDialog } from './ProjectFormDialog';
@@ -38,6 +38,15 @@ export function DashboardHeader({ onAddIdea, onAddProject }: DashboardHeaderProp
         </p>
       </div>
       <div className="flex gap-3">
+        <Button
+          variant="outline"
+          onClick={() => navigate('/timeline')}
+          className="border-primary/30 hover:border-primary hover:bg-primary/10 text-primary gap-2"
+          title="Timeline"
+        >
+          <CalendarRange className="h-4 w-4" />
+          <span className="hidden sm:inline">Timeline</span>
+        </Button>
         <Button
           variant="outline"
           onClick={() => navigate('/mindmap')}
