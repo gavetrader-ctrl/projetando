@@ -283,9 +283,10 @@ export default function Timeline() {
             {/* Items */}
             {rows.map(({ item, row }) => {
               const itemStart = Math.max(item.startDate.getTime(), start.getTime());
-              const itemEnd = item.endDate ? Math.min(item.endDate.getTime(), end.getTime()) : itemStart + totalMs * 0.02;
+              const isPointEvent = !item.endDate;
+              const itemEnd = item.endDate ? Math.min(item.endDate.getTime(), end.getTime()) : itemStart;
               const left = ((itemStart - start.getTime()) / totalMs) * 100;
-              const width = Math.max(((itemEnd - itemStart) / totalMs) * 100, 1.5);
+              const width = isPointEvent ? 0 : Math.max(((itemEnd - itemStart) / totalMs) * 100, 1.5);
 
               return (
                 <div
