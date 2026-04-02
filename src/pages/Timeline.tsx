@@ -288,6 +288,29 @@ export default function Timeline() {
               const left = ((itemStart - start.getTime()) / totalMs) * 100;
               const width = isPointEvent ? 0 : Math.max(((itemEnd - itemStart) / totalMs) * 100, 1.5);
 
+              if (isPointEvent) {
+                return (
+                  <div
+                    key={item.id}
+                    className="absolute flex items-center gap-1.5 cursor-default z-10 hover:z-30 transition-transform hover:scale-110"
+                    style={{
+                      left: `${left}%`,
+                      top: row * 44 + 10,
+                      transform: 'translateX(-50%)',
+                    }}
+                    title={`${item.title} — ${format(item.startDate, 'dd/MM/yyyy HH:mm')}`}
+                  >
+                    <div
+                      className="w-5 h-5 rotate-45 rounded-sm shadow-md border border-border/50 flex items-center justify-center"
+                      style={{ backgroundColor: item.color }}
+                    >
+                      <Lightbulb className="h-3 w-3 -rotate-45 shrink-0" style={{ color: 'hsl(var(--accent-foreground))' }} />
+                    </div>
+                    <span className="text-[10px] font-medium text-foreground whitespace-nowrap ml-1">{item.title}</span>
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={item.id}
@@ -298,12 +321,12 @@ export default function Timeline() {
                     top: row * 44 + 10,
                     height: 32,
                     backgroundColor: item.color,
-                    color: item.type === 'project' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--accent-foreground))',
+                    color: 'hsl(var(--primary-foreground))',
                     minWidth: 60,
                   }}
                   title={`${item.title} — ${format(item.startDate, 'dd/MM/yyyy')}${item.endDate ? ' → ' + format(item.endDate, 'dd/MM/yyyy') : ''}`}
                 >
-                  {item.type === 'project' ? <Folder className="h-3 w-3 shrink-0" /> : <Lightbulb className="h-3 w-3 shrink-0" />}
+                  <Folder className="h-3 w-3 shrink-0" />
                   <span className="truncate">{item.title}</span>
                 </div>
               );
