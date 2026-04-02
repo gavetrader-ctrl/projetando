@@ -132,23 +132,29 @@ export default function Timeline() {
     const result: TimelineItem[] = [];
     projects.forEach(p => {
       if (!p.startDate) return;
+      const sd = parseISO(p.startDate);
+      if (isNaN(sd.getTime())) return;
+      const ed = p.endDate ? parseISO(p.endDate) : null;
       result.push({
         id: p.id,
         type: 'project',
         title: p.name,
-        startDate: parseISO(p.startDate),
-        endDate: p.endDate ? parseISO(p.endDate) : null,
+        startDate: sd,
+        endDate: ed && !isNaN(ed.getTime()) ? ed : null,
         status: p.status,
         priority: p.priority,
         color: STATUS_COLORS[p.status] || 'hsl(var(--primary))',
       });
     });
     ideas.forEach(i => {
+      if (!i.createdAt) return;
+      const sd = parseISO(i.createdAt);
+      if (isNaN(sd.getTime())) return;
       result.push({
         id: i.id,
         type: 'idea',
         title: i.title,
-        startDate: parseISO(i.createdAt),
+        startDate: sd,
         endDate: null,
         color: 'hsl(var(--accent))',
       });
