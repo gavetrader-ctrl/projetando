@@ -181,7 +181,7 @@ export default function Timeline() {
       let row = 0;
       while (row < rowEnds.length && rowEnds[row] > itemStart) row++;
       if (row >= rowEnds.length) rowEnds.push(0);
-      const itemEnd = item.endDate ? Math.min(item.endDate.getTime(), end.getTime()) : itemStart + totalMs * 0.02;
+      const itemEnd = item.endDate ? Math.min(item.endDate.getTime(), end.getTime()) : itemStart + totalMs * 0.05;
       rowEnds[row] = itemEnd;
       assigned.push({ item, row });
     });
