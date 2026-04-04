@@ -181,21 +181,10 @@ export default function Timeline() {
     });
   }, [items, start, end]);
 
-  // Assign rows to avoid overlap
+  // Each item gets its own row
   const rows = useMemo(() => {
-    const assigned: { item: TimelineItem; row: number }[] = [];
-    const rowEnds: number[] = [];
-    visibleItems.forEach(item => {
-      const itemStart = Math.max(item.startDate.getTime(), start.getTime());
-      let row = 0;
-      while (row < rowEnds.length && rowEnds[row] > itemStart) row++;
-      if (row >= rowEnds.length) rowEnds.push(0);
-      const itemEnd = item.endDate ? Math.min(item.endDate.getTime(), end.getTime()) : itemStart + totalMs * 0.05;
-      rowEnds[row] = itemEnd;
-      assigned.push({ item, row });
-    });
-    return assigned;
-  }, [visibleItems, start, end, totalMs]);
+    return visibleItems.map((item, index) => ({ item, row: index }));
+  }, [visibleItems]);
 
   const maxRow = rows.reduce((max, r) => Math.max(max, r.row), 0);
 
