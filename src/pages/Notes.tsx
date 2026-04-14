@@ -177,6 +177,9 @@ export default function Notes() {
           onUpdate={updateNote}
           onDelete={deleteNote}
           onClose={() => setSelectedNote(null)}
+          connections={connections.filter(c => c.sourceNoteId === selectedNote.id || c.targetNoteId === selectedNote.id)}
+          notes={notes}
+          onDeleteConnection={deleteConnection}
         />
       )}
     </div>
