@@ -44,6 +44,96 @@ export type Database = {
         }
         Relationships: []
       }
+      note_connections: {
+        Row: {
+          created_at: string
+          id: string
+          source_note_id: string
+          target_note_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          source_note_id: string
+          target_note_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          source_note_id?: string
+          target_note_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "note_connections_source_note_id_fkey"
+            columns: ["source_note_id"]
+            isOneToOne: false
+            referencedRelation: "notes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "note_connections_target_note_id_fkey"
+            columns: ["target_note_id"]
+            isOneToOne: false
+            referencedRelation: "notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notes: {
+        Row: {
+          content: string
+          created_at: string
+          emoji_tag: string
+          font_color: string
+          font_size: number
+          height: number
+          id: string
+          position_x: number
+          position_y: number
+          theme: string
+          title: string
+          updated_at: string
+          user_id: string
+          width: number
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          emoji_tag?: string
+          font_color?: string
+          font_size?: number
+          height?: number
+          id?: string
+          position_x?: number
+          position_y?: number
+          theme?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+          width?: number
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          emoji_tag?: string
+          font_color?: string
+          font_size?: number
+          height?: number
+          id?: string
+          position_x?: number
+          position_y?: number
+          theme?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          width?: number
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           activities: Json
