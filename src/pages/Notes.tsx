@@ -24,7 +24,7 @@ import { Note, NOTE_THEMES } from '@/types/note';
 const nodeTypes = { noteBlock: NoteBlock };
 
 export default function Notes() {
-  const { notes, connections, loading, addNote, updateNote, deleteNote, addConnection } = useNotes();
+  const { notes, connections, loading, addNote, updateNote, deleteNote, addConnection, deleteConnection } = useNotes();
   const navigate = useNavigate();
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
@@ -177,6 +177,9 @@ export default function Notes() {
           onUpdate={updateNote}
           onDelete={deleteNote}
           onClose={() => setSelectedNote(null)}
+          connections={connections.filter(c => c.sourceNoteId === selectedNote.id || c.targetNoteId === selectedNote.id)}
+          notes={notes}
+          onDeleteConnection={deleteConnection}
         />
       )}
     </div>
