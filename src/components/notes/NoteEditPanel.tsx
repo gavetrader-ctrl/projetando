@@ -29,7 +29,7 @@ const FONT_COLORS = [
   { value: 'hsl(30 80% 55%)', label: '🟧 Laranja' },
 ];
 
-export function NoteEditPanel({ note, onUpdate, onDelete, onClose }: NoteEditPanelProps) {
+export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections = [], notes = [], onDeleteConnection }: NoteEditPanelProps) {
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [theme, setTheme] = useState(note.theme);
@@ -169,6 +169,35 @@ export function NoteEditPanel({ note, onUpdate, onDelete, onClose }: NoteEditPan
           ))}
         </div>
       </div>
+
+      {/* Connections */}
+      {connections.length > 0 && (
+        <div className="space-y-1.5">
+          <Label className="text-xs">Conexões</Label>
+          <div className="space-y-1">
+            {connections.map(conn => {
+              const otherId = conn.sourceNoteId === note.id ? conn.targetNoteId : conn.sourceNoteId;
+              const otherNote = notes.find(n => n.id === otherId);
+              return (
+                <div key={conn.id} className="flex items-center justify-between gap-2 px-2 py-1.5 rounded border border-border text-xs">
+                  <span className="truncate text-muted-foreground">
+                    {otherNote?.emojiTag && `${otherNote.emojiTag} `}
+                    {otherNote?.title || 'Sem título'}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 text-destructive hover:text-destructive"
+                    onClick={() => onDeleteConnection?.(conn.id)}
+                  >
+                    <Unlink className="h-3 w-3" />
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex gap-2 pt-2">
