@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Note, NOTE_THEMES, EMOJI_TAGS } from '@/types/note';
+import { Note, NoteConnection, NOTE_THEMES, EMOJI_TAGS } from '@/types/note';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Trash2, Calendar, Clock } from 'lucide-react';
+import { X, Trash2, Calendar, Clock, Unlink } from 'lucide-react';
 
 interface NoteEditPanelProps {
   note: Note;
   onUpdate: (id: string, updates: Partial<Note>) => void;
   onDelete: (id: string) => void;
   onClose: () => void;
+  connections?: NoteConnection[];
+  notes?: Note[];
+  onDeleteConnection?: (id: string) => void;
 }
 
 const FONT_SIZES = [10, 12, 14, 16, 18, 20, 24];

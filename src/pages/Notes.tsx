@@ -24,7 +24,7 @@ import { Note, NOTE_THEMES } from '@/types/note';
 const nodeTypes = { noteBlock: NoteBlock };
 
 export default function Notes() {
-  const { notes, connections, loading, addNote, updateNote, deleteNote, addConnection } = useNotes();
+  const { notes, connections, loading, addNote, updateNote, deleteNote, addConnection, deleteConnection } = useNotes();
   const navigate = useNavigate();
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
