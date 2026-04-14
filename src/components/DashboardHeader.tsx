@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Lightbulb, Plus, LogOut, Network, CalendarRange } from 'lucide-react';
+import { Lightbulb, Plus, LogOut, StickyNote, CalendarRange } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IdeaFormDialog } from './IdeaFormDialog';
 import { ProjectFormDialog } from './ProjectFormDialog';
@@ -49,12 +49,12 @@ export function DashboardHeader({ onAddIdea, onAddProject }: DashboardHeaderProp
         </Button>
         <Button
           variant="outline"
-          onClick={() => navigate('/mindmap')}
+          onClick={() => navigate('/notes')}
           className="border-accent/30 hover:border-accent hover:bg-accent/10 text-accent gap-2"
-          title="Mapa Mental"
+          title="Bloco de Notas"
         >
-          <Network className="h-4 w-4" />
-          <span className="hidden sm:inline">Mapa</span>
+          <StickyNote className="h-4 w-4" />
+          <span className="hidden sm:inline">Notas</span>
         </Button>
         <Button
           variant="outline"
