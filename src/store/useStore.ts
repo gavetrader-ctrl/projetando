@@ -65,6 +65,7 @@ function mapIdeaFromDb(row: any): Idea {
     observation: row.observation || '',
     attachments: row.attachments || [],
     createdAt: row.created_at,
+    importance: (row.importance || 'medium') as any,
   };
 }
 
@@ -76,6 +77,7 @@ function mapIdeaToDb(idea: Idea, userId: string) {
     description: idea.description,
     observation: idea.observation || '',
     attachments: idea.attachments as any,
+    importance: idea.importance || 'medium',
   };
 }
 
