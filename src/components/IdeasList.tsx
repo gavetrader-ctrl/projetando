@@ -12,6 +12,11 @@ interface IdeasListProps {
 }
 
 export function IdeasList({ ideas, onDelete, onView, onEdit }: IdeasListProps) {
+  const importanceLabel = (imp?: string) => {
+    if (imp === 'high') return { text: '🔴 Alta', cls: 'text-destructive' };
+    if (imp === 'low') return { text: '🟢 Baixa', cls: 'text-muted-foreground' };
+    return { text: '🟡 Média', cls: 'text-warning' };
+  };
   if (ideas.length === 0) {
     return (
       <div className="glass rounded-lg p-8 text-center">
@@ -39,6 +44,7 @@ export function IdeasList({ ideas, onDelete, onView, onEdit }: IdeasListProps) {
               <h3 className="font-semibold flex items-center gap-2">
                 <Lightbulb className="h-4 w-4 text-warning" />
                 {idea.title}
+                <span className={`text-xs ml-auto ${importanceLabel(idea.importance).cls}`}>{importanceLabel(idea.importance).text}</span>
               </h3>
               {idea.description && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{idea.description}</p>}
               {idea.observation && <p className="text-xs text-muted-foreground/70 mt-1 italic">{idea.observation}</p>}

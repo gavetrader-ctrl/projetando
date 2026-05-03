@@ -87,4 +87,5 @@ export interface Idea {
   observation: string;
   attachments: Attachment[];
   createdAt: string;
+  importance: Priority;
 }

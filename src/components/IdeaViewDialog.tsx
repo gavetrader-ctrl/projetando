@@ -86,6 +86,13 @@ export function IdeaViewDialog({ open, onOpenChange, idea, onEdit }: IdeaViewDia
             </div>
           )}
 
+          <div>
+            <h4 className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Grau de Importância</h4>
+            <p className="text-sm">
+              {idea.importance === 'high' ? '🔴 Alta' : idea.importance === 'low' ? '🟢 Baixa' : '🟡 Média'}
+            </p>
+          </div>
+
           {idea.observation && (
             <div>
               <h4 className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Observação</h4>
