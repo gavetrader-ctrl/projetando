@@ -174,7 +174,7 @@ export function useIdeas() {
     if (!user) return;
     const { data, error } = await supabase
       .from('ideas')
-      .update({ title: idea.title, description: idea.description, observation: idea.observation || '', attachments: idea.attachments as any })
+      .update({ title: idea.title, description: idea.description, observation: idea.observation || '', attachments: idea.attachments as any, importance: idea.importance || 'medium' })
       .eq('id', idea.id)
       .eq('user_id', user.id)
       .select()
