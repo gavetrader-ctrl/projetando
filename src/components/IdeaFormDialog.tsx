@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2, Link, FileText } from 'lucide-react';
-import { Idea, Attachment } from '@/types/project';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Idea, Attachment, Priority } from '@/types/project';
 
 interface IdeaFormDialogProps {
   open: boolean;
@@ -18,6 +19,7 @@ export function IdeaFormDialog({ open, onOpenChange, onSubmit, editingIdea }: Id
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [observation, setObservation] = useState('');
+  const [importance, setImportance] = useState<Priority>('medium');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [attName, setAttName] = useState('');
   const [attUrl, setAttUrl] = useState('');
@@ -28,9 +30,10 @@ export function IdeaFormDialog({ open, onOpenChange, onSubmit, editingIdea }: Id
       setTitle(editingIdea.title);
       setDescription(editingIdea.description);
       setObservation(editingIdea.observation);
+      setImportance(editingIdea.importance || 'medium');
       setAttachments([...editingIdea.attachments]);
     } else {
-      setTitle(''); setDescription(''); setObservation(''); setAttachments([]);
+      setTitle(''); setDescription(''); setObservation(''); setImportance('medium'); setAttachments([]);
     }
   }, [editingIdea]);
 
@@ -59,8 +62,9 @@ export function IdeaFormDialog({ open, onOpenChange, onSubmit, editingIdea }: Id
       observation,
       attachments,
       createdAt: editingIdea?.createdAt || new Date().toISOString(),
+      importance,
     });
-    setTitle(''); setDescription(''); setObservation(''); setAttachments([]);
+    setTitle(''); setDescription(''); setObservation(''); setImportance('medium'); setAttachments([]);
     onOpenChange(false);
   };
 
@@ -82,6 +86,20 @@ export function IdeaFormDialog({ open, onOpenChange, onSubmit, editingIdea }: Id
           <div>
             <Label>Observação</Label>
             <Textarea value={observation} onChange={e => setObservation(e.target.value)} placeholder="Observações adicionais..." className="bg-muted/50 border-border" />
+          </div>
+
+          <div>
+            <Label>Grau de Importância</Label>
+            <Select value={importance} onValueChange={(v) => setImportance(v as Priority)}>
+              <SelectTrigger className="bg-muted/50 border-border">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="high">🔴 Alta</SelectItem>
+                <SelectItem value="medium">🟡 Média</SelectItem>
+                <SelectItem value="low">🟢 Baixa</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
