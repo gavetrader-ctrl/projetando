@@ -10,6 +10,7 @@ import { LogIn, UserPlus, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 const Auth = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgot, setIsForgot] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -20,7 +21,14 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
+      if (isForgot) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success('Email de recuperação enviado! Verifique sua caixa.');
+        setIsForgot(false);
+      } else if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success('Login realizado com sucesso!');
@@ -49,7 +57,7 @@ const Auth = () => {
             Project Manager
           </h1>
           <p className="text-muted-foreground mt-2 text-sm">
-            {isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
+            {isForgot ? 'Recuperar senha' : isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
           </p>
         </div>
 
@@ -71,7 +79,7 @@ const Auth = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
+            {!isForgot && <div className="space-y-2">
               <Label htmlFor="password" className="text-sm text-muted-foreground">Senha</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -93,11 +101,13 @@ const Auth = () => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-            </div>
+            </div>}
 
             <Button type="submit" className="w-full bg-primary text-primary-foreground glow-primary gap-2" disabled={loading}>
               {loading ? (
                 <span className="animate-pulse">Aguarde...</span>
+              ) : isForgot ? (
+                <><Mail className="h-4 w-4" /> Enviar email</>
               ) : isLogin ? (
                 <><LogIn className="h-4 w-4" /> Entrar</>
               ) : (
@@ -106,13 +116,22 @@ const Auth = () => {
             </Button>
           </form>
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
+            {isLogin && !isForgot && (
+              <button
+                type="button"
+                onClick={() => setIsForgot(true)}
+                className="block w-full text-sm text-primary hover:text-primary/80 transition-colors"
+              >
+                Esqueci minha senha
+              </button>
+            )}
             <button
               type="button"
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => { if (isForgot) { setIsForgot(false); setIsLogin(true); } else { setIsLogin(!isLogin); } }}
               className="text-sm text-primary hover:text-primary/80 transition-colors"
             >
-              {isLogin ? 'Não tem conta? Criar uma' : 'Já tem conta? Entrar'}
+              {isForgot ? 'Voltar para login' : isLogin ? 'Não tem conta? Criar uma' : 'Já tem conta? Entrar'}
             </button>
           </div>
         </div>
