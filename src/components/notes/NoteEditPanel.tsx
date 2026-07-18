@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Trash2, Calendar, Clock, Unlink } from 'lucide-react';
+import { X, Trash2, Calendar, Clock, Unlink, Lightbulb, FolderPlus, Link2, Link2Off } from 'lucide-react';
+import { Project, Idea } from '@/types/project';
 
 interface NoteEditPanelProps {
   note: Note;
@@ -15,6 +16,12 @@ interface NoteEditPanelProps {
   connections?: NoteConnection[];
   notes?: Note[];
   onDeleteConnection?: (id: string) => void;
+  projects?: Project[];
+  ideas?: Idea[];
+  onConvertToIdea?: (note: Note) => void;
+  onConvertToProject?: (note: Note) => void;
+  onLinkTarget?: (noteId: string, type: 'project' | 'idea', targetId: string) => void;
+  onUnlinkTarget?: (noteId: string) => void;
 }
 
 const FONT_SIZES = [10, 12, 14, 16, 18, 20, 24];
@@ -29,7 +36,7 @@ const FONT_COLORS = [
   { value: 'hsl(30 80% 55%)', label: '🟧 Laranja' },
 ];
 
-export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections = [], notes = [], onDeleteConnection }: NoteEditPanelProps) {
+export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections = [], notes = [], onDeleteConnection, projects = [], ideas = [], onConvertToIdea, onConvertToProject, onLinkTarget, onUnlinkTarget }: NoteEditPanelProps) {
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [theme, setTheme] = useState(note.theme);
@@ -52,6 +59,19 @@ export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections =
 
   const createdDate = new Date(note.createdAt);
   const updatedDate = new Date(note.updatedAt);
+
+  const linkedItem = note.linkedType === 'project'
+    ? projects.find(p => p.id === note.linkedId)
+    : note.linkedType === 'idea'
+      ? ideas.find(i => i.id === note.linkedId)
+      : null;
+
+  const linkValue = note.linkedType && note.linkedId ? `${note.linkedType}:${note.linkedId}` : 'none';
+  const handleLinkChange = (value: string) => {
+    if (value === 'none') { onUnlinkTarget?.(note.id); return; }
+    const [type, id] = value.split(':');
+    onLinkTarget?.(note.id, type as 'project' | 'idea', id);
+  };
 
   return (
     <div className="w-80 bg-card border-l border-border h-full overflow-y-auto p-4 space-y-4">
@@ -198,6 +218,83 @@ export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections =
           </div>
         </div>
       )}
+
+      {/* Convert / Link to Project or Idea */}
+      <div className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
+        <Label className="text-xs text-primary">Enviar / Vincular</Label>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs gap-1"
+            onClick={() => onConvertToIdea?.(note)}
+            disabled={!note.title && !note.content}
+          >
+            <Lightbulb className="h-3.5 w-3.5" />
+            Nova Ideia
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs gap-1"
+            onClick={() => onConvertToProject?.(note)}
+            disabled={!note.title && !note.content}
+          >
+            <FolderPlus className="h-3.5 w-3.5" />
+            Novo Projeto
+          </Button>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+            <Link2 className="h-3 w-3" />
+            Vincular a item existente
+          </Label>
+          <Select value={linkValue} onValueChange={handleLinkChange}>
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue placeholder="Nenhum" />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value="none" className="text-xs">— Nenhum —</SelectItem>
+              {projects.length > 0 && (
+                <>
+                  <div className="px-2 py-1 text-[10px] uppercase text-muted-foreground">Projetos</div>
+                  {projects.map(p => (
+                    <SelectItem key={p.id} value={`project:${p.id}`} className="text-xs">
+                      📁 {p.name || 'Sem nome'}
+                    </SelectItem>
+                  ))}
+                </>
+              )}
+              {ideas.length > 0 && (
+                <>
+                  <div className="px-2 py-1 text-[10px] uppercase text-muted-foreground">Ideias</div>
+                  {ideas.map(i => (
+                    <SelectItem key={i.id} value={`idea:${i.id}`} className="text-xs">
+                      💡 {i.title || 'Sem título'}
+                    </SelectItem>
+                  ))}
+                </>
+              )}
+            </SelectContent>
+          </Select>
+          {linkedItem && (
+            <div className="flex items-center justify-between gap-2 px-2 py-1.5 rounded border border-primary/40 bg-primary/10 text-xs">
+              <span className="truncate text-primary">
+                {note.linkedType === 'project' ? '📁' : '💡'} {(linkedItem as any).name || (linkedItem as any).title}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-5 w-5 text-destructive hover:text-destructive"
+                onClick={() => onUnlinkTarget?.(note.id)}
+              >
+                <Link2Off className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Actions */}
       <div className="flex gap-2 pt-2">
