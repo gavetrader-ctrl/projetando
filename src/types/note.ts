@@ -12,6 +12,8 @@ export interface Note {
   fontColor: string;
   createdAt: string;
   updatedAt: string;
+  linkedType?: 'project' | 'idea' | null;
+  linkedId?: string | null;
 }
 
 export interface NoteConnection {
