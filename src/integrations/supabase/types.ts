@@ -95,6 +95,8 @@ export type Database = {
           font_size: number
           height: number
           id: string
+          linked_id: string | null
+          linked_type: string | null
           position_x: number
           position_y: number
           theme: string
@@ -111,6 +113,8 @@ export type Database = {
           font_size?: number
           height?: number
           id?: string
+          linked_id?: string | null
+          linked_type?: string | null
           position_x?: number
           position_y?: number
           theme?: string
@@ -127,6 +131,8 @@ export type Database = {
           font_size?: number
           height?: number
           id?: string
+          linked_id?: string | null
+          linked_type?: string | null
           position_x?: number
           position_y?: number
           theme?: string
