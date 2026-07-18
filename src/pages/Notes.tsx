@@ -20,11 +20,16 @@ import { NoteBlock } from '@/components/notes/NoteBlock';
 import { NoteEditPanel } from '@/components/notes/NoteEditPanel';
 import { useNotes } from '@/hooks/useNotes';
 import { Note, NOTE_THEMES } from '@/types/note';
+import { useProjects, useIdeas } from '@/store/useStore';
+import { Project, Idea } from '@/types/project';
+import { toast } from '@/hooks/use-toast';
 
 const nodeTypes = { noteBlock: NoteBlock };
 
 export default function Notes() {
   const { notes, connections, loading, addNote, updateNote, deleteNote, addConnection, deleteConnection } = useNotes();
+  const { projects, addProject } = useProjects();
+  const { ideas, addIdea } = useIdeas();
   const navigate = useNavigate();
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
@@ -109,6 +114,60 @@ export default function Notes() {
     }
   }, [notes, selectedNote?.id]);
 
+  const handleConvertToIdea = useCallback(async (note: Note) => {
+    const newIdea: Idea = {
+      id: crypto.randomUUID(),
+      title: note.title || 'Nova ideia',
+      description: note.content || '',
+      observation: '',
+      attachments: [],
+      createdAt: new Date().toISOString(),
+      importance: 'medium',
+    };
+    await addIdea(newIdea);
+    await updateNote(note.id, { linkedType: 'idea', linkedId: newIdea.id });
+    toast({ title: 'Ideia criada', description: 'A nota foi enviada para Ideias e vinculada.' });
+  }, [addIdea, updateNote]);
+
+  const handleConvertToProject = useCallback(async (note: Note) => {
+    const newProject: Project = {
+      id: crypto.randomUUID(),
+      name: note.title || 'Novo projeto',
+      description: note.content || '',
+      startDate: '',
+      endDate: '',
+      type: 'other',
+      status: 'planning',
+      priority: 'medium',
+      progress: 0,
+      hasParticipants: false,
+      participants: [],
+      studyAttachments: [],
+      projectAttachments: [],
+      financial: { totalBudget: 0, fixedCosts: [], variableCosts: [], reserve: [], unexpected: [], goal: '' },
+      returnTimeline: 'short',
+      returnFrequency: 'once',
+      observations: '',
+      activities: [],
+      pauseReason: '',
+      finalRemarks: '',
+      createdAt: new Date().toISOString(),
+      infrastructure: {},
+    };
+    await addProject(newProject);
+    await updateNote(note.id, { linkedType: 'project', linkedId: newProject.id });
+    toast({ title: 'Projeto criado', description: 'A nota foi enviada para Projetos (em Planejamento) e vinculada.' });
+  }, [addProject, updateNote]);
+
+  const handleLinkTarget = useCallback((noteId: string, type: 'project' | 'idea', targetId: string) => {
+    updateNote(noteId, { linkedType: type, linkedId: targetId });
+    toast({ title: 'Vinculado', description: `Nota vinculada a ${type === 'project' ? 'projeto' : 'ideia'}.` });
+  }, [updateNote]);
+
+  const handleUnlinkTarget = useCallback((noteId: string) => {
+    updateNote(noteId, { linkedType: null, linkedId: null });
+  }, [updateNote]);
+
   if (loading) {
     return (
       <div className="h-screen w-screen bg-background flex items-center justify-center">
@@ -180,6 +239,12 @@ export default function Notes() {
           connections={connections.filter(c => c.sourceNoteId === selectedNote.id || c.targetNoteId === selectedNote.id)}
           notes={notes}
           onDeleteConnection={deleteConnection}
+          projects={projects}
+          ideas={ideas}
+          onConvertToIdea={handleConvertToIdea}
+          onConvertToProject={handleConvertToProject}
+          onLinkTarget={handleLinkTarget}
+          onUnlinkTarget={handleUnlinkTarget}
         />
       )}
     </div>
