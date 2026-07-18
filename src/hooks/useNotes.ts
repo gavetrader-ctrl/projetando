@@ -18,6 +18,8 @@ function mapNoteFromDb(row: any): Note {
     fontColor: row.font_color,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    linkedType: row.linked_type || null,
+    linkedId: row.linked_id || null,
   };
 }
 
@@ -84,6 +86,8 @@ export function useNotes() {
     if (updates.emojiTag !== undefined) dbUpdates.emoji_tag = updates.emojiTag;
     if (updates.fontSize !== undefined) dbUpdates.font_size = updates.fontSize;
     if (updates.fontColor !== undefined) dbUpdates.font_color = updates.fontColor;
+    if (updates.linkedType !== undefined) dbUpdates.linked_type = updates.linkedType;
+    if (updates.linkedId !== undefined) dbUpdates.linked_id = updates.linkedId;
 
     const { data, error } = await supabase.from('notes').update(dbUpdates).eq('id', id).eq('user_id', user.id).select().single();
     if (!error && data) setNotes(prev => prev.map(n => n.id === id ? mapNoteFromDb(data) : n));
