@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Lightbulb, Plus, LogOut, StickyNote, CalendarRange } from 'lucide-react';
+import { Lightbulb, Plus, LogOut, StickyNote, CalendarRange, ListChecks } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IdeaFormDialog } from './IdeaFormDialog';
 import { ProjectFormDialog } from './ProjectFormDialog';
@@ -46,6 +46,15 @@ export function DashboardHeader({ onAddIdea, onAddProject }: DashboardHeaderProp
         >
           <CalendarRange className="h-4 w-4" />
           <span className="hidden sm:inline">Timeline</span>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => navigate('/activities')}
+          className="border-primary/30 hover:border-primary hover:bg-primary/10 text-primary gap-2"
+          title="Atividades Diárias"
+        >
+          <ListChecks className="h-4 w-4" />
+          <span className="hidden sm:inline">Atividades</span>
         </Button>
         <Button
           variant="outline"
