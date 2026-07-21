@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_activities: {
+        Row: {
+          activity_date: string
+          category: string
+          created_at: string
+          description: string
+          end_time: string
+          id: string
+          project_id: string | null
+          start_time: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_date?: string
+          category?: string
+          created_at?: string
+          description?: string
+          end_time?: string
+          id?: string
+          project_id?: string | null
+          start_time?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_date?: string
+          category?: string
+          created_at?: string
+          description?: string
+          end_time?: string
+          id?: string
+          project_id?: string | null
+          start_time?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_activities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ideas: {
         Row: {
           attachments: Json
