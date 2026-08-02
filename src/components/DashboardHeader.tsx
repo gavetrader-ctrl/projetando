@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Lightbulb, Plus, LogOut, StickyNote, CalendarRange, ListChecks } from 'lucide-react';
+import { Lightbulb, Plus, LogOut, StickyNote, CalendarRange, ListChecks, Orbit as OrbitIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IdeaFormDialog } from './IdeaFormDialog';
 import { ProjectFormDialog } from './ProjectFormDialog';
@@ -64,6 +64,15 @@ export function DashboardHeader({ onAddIdea, onAddProject }: DashboardHeaderProp
         >
           <StickyNote className="h-4 w-4" />
           <span className="hidden sm:inline">Notas</span>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => navigate('/orbit')}
+          className="border-accent/30 hover:border-accent hover:bg-accent/10 text-accent gap-2"
+          title="Órbita de Projetos"
+        >
+          <OrbitIcon className="h-4 w-4" />
+          <span className="hidden sm:inline">Órbita</span>
         </Button>
         <Button
           variant="outline"
