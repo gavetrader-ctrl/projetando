@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DailyActivity } from '@/hooks/useDailyActivities';
-import { Project } from '@/types/project';
+import { Project, Idea } from '@/types/project';
 import { format } from 'date-fns';
 
 interface Props {
@@ -16,12 +16,14 @@ interface Props {
   onDelete?: (id: string) => void;
   editing?: DailyActivity | null;
   projects: Project[];
+  ideas?: Idea[];
+  planned?: boolean;
   defaultProjectId?: string | null;
 }
 
 const CATEGORIES = ['geral', 'trabalho', 'pessoal', 'estudo', 'saúde', 'espiritual', 'financeiro', 'outro'];
 
-export function DailyActivityFormDialog({ open, onOpenChange, onSubmit, onDelete, editing, projects, defaultProjectId }: Props) {
+export function DailyActivityFormDialog({ open, onOpenChange, onSubmit, onDelete, editing, projects, ideas = [], planned = false, defaultProjectId }: Props) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('geral');
@@ -29,6 +31,19 @@ export function DailyActivityFormDialog({ open, onOpenChange, onSubmit, onDelete
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [projectId, setProjectId] = useState<string>('none');
+  const [ideaId, setIdeaId] = useState<string>('none');
+  const [duration, setDuration] = useState('');
+  const [observations, setObservations] = useState('');
+  const [isPlanned, setIsPlanned] = useState(planned);
+
+  useEffect(() => {
+    if (startTime && endTime) {
+      const [h1, m1] = startTime.split(':').map(Number);
+      const [h2, m2] = endTime.split(':').map(Number);
+      const d = h2 * 60 + m2 - (h1 * 60 + m1);
+      if (d > 0) setDuration(String(d));
+    }
+  }, [startTime, endTime]);
 
   useEffect(() => {
     if (open) {
@@ -40,6 +55,10 @@ export function DailyActivityFormDialog({ open, onOpenChange, onSubmit, onDelete
         setStartTime(editing.startTime);
         setEndTime(editing.endTime);
         setProjectId(editing.projectId || 'none');
+        setIdeaId(editing.ideaId || 'none');
+        setDuration(editing.durationMinutes ? String(editing.durationMinutes) : '');
+        setObservations(editing.observations);
+        setIsPlanned(editing.isPlanned);
       } else {
         setTitle('');
         setDescription('');
@@ -48,9 +67,13 @@ export function DailyActivityFormDialog({ open, onOpenChange, onSubmit, onDelete
         setStartTime('');
         setEndTime('');
         setProjectId(defaultProjectId || 'none');
+        setIdeaId('none');
+        setDuration('');
+        setObservations('');
+        setIsPlanned(planned);
       }
     }
-  }, [open, editing, defaultProjectId]);
+  }, [open, editing, defaultProjectId, planned]);
 
   const handleSave = () => {
     if (!title.trim()) return;
@@ -62,16 +85,20 @@ export function DailyActivityFormDialog({ open, onOpenChange, onSubmit, onDelete
       startTime,
       endTime,
       projectId: projectId === 'none' ? null : projectId,
+      ideaId: ideaId === 'none' ? null : ideaId,
+      isPlanned,
+      durationMinutes: Number(duration) || 0,
+      observations,
     });
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display tracking-wider">
-            {editing ? 'Editar Atividade' : 'Nova Atividade'}
+            {editing ? (isPlanned ? 'Editar Planejamento' : 'Editar Atividade') : (isPlanned ? 'Planejar Atividade' : 'Nova Atividade')}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-3 py-2">
@@ -107,6 +134,36 @@ export function DailyActivityFormDialog({ open, onOpenChange, onSubmit, onDelete
               <Label>Hora fim</Label>
               <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Duração (minutos)</Label>
+              <Input type="number" min={0} value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="Ex: 60" />
+            </div>
+            <div>
+              <Label>Tipo</Label>
+              <Select value={isPlanned ? 'planned' : 'done'} onValueChange={(v) => setIsPlanned(v === 'planned')}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="planned">Planejada (futura)</SelectItem>
+                  <SelectItem value="done">Realizada</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div>
+            <Label>Observações</Label>
+            <Textarea value={observations} onChange={(e) => setObservations(e.target.value)} rows={2} placeholder="Observações..." />
+          </div>
+          <div>
+            <Label>Ideia vinculada (opcional)</Label>
+            <Select value={ideaId} onValueChange={setIdeaId}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem vínculo</SelectItem>
+                {ideas.map(i => <SelectItem key={i.id} value={i.id}>{i.title}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>Projeto vinculado (opcional)</Label>
