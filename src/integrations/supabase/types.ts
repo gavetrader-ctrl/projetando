@@ -76,6 +76,33 @@ export type Database = {
           },
         ]
       }
+      external_projects: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          title: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          title: string
+          url?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          title?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ideas: {
         Row: {
           attachments: Json
