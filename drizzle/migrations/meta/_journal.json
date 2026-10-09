@@ -8,6 +8,13 @@
       "when": 1791555639101,
       "tag": "0000_planned_activities",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791574604441,
+      "tag": "0001_create_external_projects",
+      "breakpoints": true
     }
   ]
 }
