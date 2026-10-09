@@ -20,8 +20,12 @@ export type Database = {
           category: string
           created_at: string
           description: string
+          duration_minutes: number
           end_time: string
           id: string
+          idea_id: string | null
+          is_planned: boolean
+          observations: string
           project_id: string | null
           start_time: string
           title: string
@@ -33,8 +37,12 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string
+          duration_minutes?: number
           end_time?: string
           id?: string
+          idea_id?: string | null
+          is_planned?: boolean
+          observations?: string
           project_id?: string | null
           start_time?: string
           title: string
@@ -46,8 +54,12 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string
+          duration_minutes?: number
           end_time?: string
           id?: string
+          idea_id?: string | null
+          is_planned?: boolean
+          observations?: string
           project_id?: string | null
           start_time?: string
           title?: string
