@@ -11,6 +11,10 @@ export interface DailyActivity {
   startTime: string;
   endTime: string;
   projectId: string | null;
+  ideaId: string | null;
+  isPlanned: boolean;
+  durationMinutes: number;
+  observations: string;
   createdAt: string;
 }
 
@@ -24,6 +28,10 @@ function fromDb(r: any): DailyActivity {
     startTime: r.start_time || '',
     endTime: r.end_time || '',
     projectId: r.project_id,
+    ideaId: r.idea_id ?? null,
+    isPlanned: !!r.is_planned,
+    durationMinutes: r.duration_minutes || 0,
+    observations: r.observations || '',
     createdAt: r.created_at,
   };
 }
@@ -59,6 +67,10 @@ export function useDailyActivities() {
       start_time: a.startTime,
       end_time: a.endTime,
       project_id: a.projectId,
+      idea_id: a.ideaId,
+      is_planned: a.isPlanned,
+      duration_minutes: a.durationMinutes,
+      observations: a.observations,
     }).select().single();
     if (!error && data) setActivities(prev => [fromDb(data), ...prev]);
   }, [user]);
@@ -73,6 +85,10 @@ export function useDailyActivities() {
     if (a.startTime !== undefined) upd.start_time = a.startTime;
     if (a.endTime !== undefined) upd.end_time = a.endTime;
     if (a.projectId !== undefined) upd.project_id = a.projectId;
+    if (a.ideaId !== undefined) upd.idea_id = a.ideaId;
+    if (a.isPlanned !== undefined) upd.is_planned = a.isPlanned;
+    if (a.durationMinutes !== undefined) upd.duration_minutes = a.durationMinutes;
+    if (a.observations !== undefined) upd.observations = a.observations;
     const { data, error } = await supabase
       .from('daily_activities')
       .update(upd)
