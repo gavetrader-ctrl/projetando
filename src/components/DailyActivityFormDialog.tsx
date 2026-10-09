@@ -7,7 +7,25 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DailyActivity } from '@/hooks/useDailyActivities';
 import { Project, Idea } from '@/types/project';
-import { format } from 'date-fns';
+import { format, addDays, parseISO } from 'date-fns';
+
+type Repeat = 'none' | 'daily' | 'weekdays' | 'custom';
+const WEEK = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+export function buildDates(start: string, until: string, repeat: Repeat, days: number[]): string[] {
+  if (repeat === 'none' || !until) return [start];
+  const out: string[] = [];
+  let d = parseISO(start);
+  const end = parseISO(until);
+  while (d <= end && out.length < 366) {
+    const wd = d.getDay();
+    if (repeat === 'daily' || (repeat === 'weekdays' && wd >= 1 && wd <= 5) || (repeat === 'custom' && days.includes(wd))) {
+      out.push(format(d, 'yyyy-MM-dd'));
+    }
+    d = addDays(d, 1);
+  }
+  return out.length ? out : [start];
+}
 
 interface Props {
   open: boolean;
@@ -35,6 +53,10 @@ export function DailyActivityFormDialog({ open, onOpenChange, onSubmit, onDelete
   const [duration, setDuration] = useState('');
   const [observations, setObservations] = useState('');
   const [isPlanned, setIsPlanned] = useState(planned);
+  const [repeat, setRepeat] = useState<Repeat>('none');
+  const [weekDays, setWeekDays] = useState<number[]>([]);
+  const [until, setUntil] = useState('');
+  useEffect(() => { if (open) { setRepeat('none'); setWeekDays([]); setUntil(format(addDays(new Date(), 30), 'yyyy-MM-dd')); } }, [open]);
 
   useEffect(() => {
     if (startTime && endTime) {
@@ -77,11 +99,10 @@ export function DailyActivityFormDialog({ open, onOpenChange, onSubmit, onDelete
 
   const handleSave = () => {
     if (!title.trim()) return;
-    onSubmit({
+    const base = {
       title: title.trim(),
       description,
       category,
-      activityDate,
       startTime,
       endTime,
       projectId: projectId === 'none' ? null : projectId,
@@ -89,7 +110,9 @@ export function DailyActivityFormDialog({ open, onOpenChange, onSubmit, onDelete
       isPlanned,
       durationMinutes: Number(duration) || 0,
       observations,
-    });
+    };
+    const dates = !editing && repeat !== 'none' ? buildDates(activityDate, until, repeat, weekDays) : [activityDate];
+    dates.forEach(d => onSubmit({ ...base, activityDate: d }));
     onOpenChange(false);
   };
 
@@ -151,6 +174,41 @@ export function DailyActivityFormDialog({ open, onOpenChange, onSubmit, onDelete
               </Select>
             </div>
           </div>
+          {!editing && (
+            <div className="space-y-2 border border-border/60 rounded-lg p-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Repetir</Label>
+                  <Select value={repeat} onValueChange={(v: Repeat) => setRepeat(v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Não repetir</SelectItem>
+                      <SelectItem value="daily">Todos os dias</SelectItem>
+                      <SelectItem value="weekdays">Dias úteis (seg-sex)</SelectItem>
+                      <SelectItem value="custom">Dias da semana...</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {repeat !== 'none' && (
+                  <div>
+                    <Label>Repetir até</Label>
+                    <Input type="date" value={until} onChange={(e) => setUntil(e.target.value)} />
+                  </div>
+                )}
+              </div>
+              {repeat === 'custom' && (
+                <div className="flex gap-1 flex-wrap">
+                  {WEEK.map((w, i) => (
+                    <Button key={w} type="button" size="sm" variant={weekDays.includes(i) ? 'default' : 'outline'}
+                      onClick={() => setWeekDays(p => p.includes(i) ? p.filter(x => x !== i) : [...p, i])}>{w}</Button>
+                  ))}
+                </div>
+              )}
+              {repeat !== 'none' && (
+                <p className="text-xs text-muted-foreground">Serão criadas {buildDates(activityDate, until, repeat, weekDays).length} atividade(s), a partir da data escolhida.</p>
+              )}
+            </div>
+          )}
           <div>
             <Label>Observações</Label>
             <Textarea value={observations} onChange={(e) => setObservations(e.target.value)} rows={2} placeholder="Observações..." />
