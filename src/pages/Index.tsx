@@ -97,6 +97,7 @@ const Index = () => {
             <ProjectTimeChart projects={filteredProjects} />
             <ProjectList projects={filteredProjects} onView={handleViewProject} onEdit={handleEditProject} onAddActivity={handleAddActivity} onUpdate={updateProject} />
             <DailyActivitiesPanel projects={projects} compact defaultDateFilter="today" />
+            <ExternalProjectsPanel />
           </>
         )}
       </div>
