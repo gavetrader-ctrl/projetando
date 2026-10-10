@@ -5,6 +5,7 @@ import { ProjectList } from '@/components/ProjectList';
 import { ProjectTimeChart } from '@/components/ProjectTimeChart';
 import { IdeasList } from '@/components/IdeasList';
 import { DailyActivitiesPanel } from '@/components/DailyActivitiesPanel';
+import { ExternalProjectsPanel } from '@/components/ExternalProjectsPanel';
 import { IdeaFormDialog } from '@/components/IdeaFormDialog';
 import { IdeaViewDialog } from '@/components/IdeaViewDialog';
 import { ProjectFormDialog } from '@/components/ProjectFormDialog';
@@ -96,6 +97,7 @@ const Index = () => {
             <ProjectTimeChart projects={filteredProjects} />
             <ProjectList projects={filteredProjects} onView={handleViewProject} onEdit={handleEditProject} onAddActivity={handleAddActivity} onUpdate={updateProject} />
             <DailyActivitiesPanel projects={projects} compact defaultDateFilter="today" />
+            <ExternalProjectsPanel />
           </>
         )}
       </div>
