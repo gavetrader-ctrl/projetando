@@ -5,6 +5,7 @@ import { ProjectList } from '@/components/ProjectList';
 import { ProjectTimeChart } from '@/components/ProjectTimeChart';
 import { IdeasList } from '@/components/IdeasList';
 import { DailyActivitiesPanel } from '@/components/DailyActivitiesPanel';
+import { ExternalProjectsPanel } from '@/components/ExternalProjectsPanel';
 import { IdeaFormDialog } from '@/components/IdeaFormDialog';
 import { IdeaViewDialog } from '@/components/IdeaViewDialog';
 import { ProjectFormDialog } from '@/components/ProjectFormDialog';
