@@ -97,13 +97,14 @@ export default function Notes() {
 
   const handleAddNote = useCallback(async () => {
     const offset = notes.length * 30;
-    await addNote({
+    const createdNote = await addNote({
       title: '',
       content: '',
       positionX: 200 + offset,
       positionY: 200 + offset,
       theme: 'default',
     });
+    if (createdNote) setSelectedNote(createdNote);
   }, [addNote, notes.length]);
 
   useEffect(() => {

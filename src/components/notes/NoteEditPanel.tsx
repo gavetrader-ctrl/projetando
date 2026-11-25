@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Note, NoteConnection, NOTE_THEMES, EMOJI_TAGS } from '@/types/note';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,7 @@ const FONT_COLORS = [
 ];
 
 export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections = [], notes = [], onDeleteConnection, projects = [], ideas = [], onConvertToIdea, onConvertToProject, onLinkTarget, onUnlinkTarget }: NoteEditPanelProps) {
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [theme, setTheme] = useState(note.theme);
@@ -52,6 +53,10 @@ export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections =
     setFontSize(note.fontSize);
     setFontColor(note.fontColor);
   }, [note]);
+
+  useEffect(() => {
+    titleInputRef.current?.focus();
+  }, [note.id]);
 
   const handleSave = () => {
     onUpdate(note.id, { title, content, theme, emojiTag, fontSize, fontColor });
@@ -98,7 +103,7 @@ export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections =
       {/* Title */}
       <div className="space-y-1.5">
         <Label className="text-xs">Título</Label>
-        <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Título da nota" className="h-8 text-sm" />
+        <Input ref={titleInputRef} value={title} onChange={e => setTitle(e.target.value)} placeholder="Título da nota" className="h-8 text-sm" />
       </div>
 
       {/* Content */}
