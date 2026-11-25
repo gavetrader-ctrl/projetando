@@ -2,11 +2,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PropsWithChildren } from 'react';
-import type { Note } from '@/types/note';
+import type { Note, NoteConnection } from '@/types/note';
 import Notes from '@/pages/Notes';
 
 const state = vi.hoisted(() => ({
   notes: [] as Note[],
+  connections: [] as NoteConnection[],
   addNote: vi.fn(),
   updateNote: vi.fn(),
 }));
@@ -14,7 +15,7 @@ const state = vi.hoisted(() => ({
 vi.mock('@/hooks/useNotes', () => ({
   useNotes: () => ({
     notes: state.notes,
-    connections: [],
+    connections: state.connections,
     loading: false,
     addNote: state.addNote,
     updateNote: state.updateNote,
