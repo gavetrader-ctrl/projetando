@@ -1,3 +1,9 @@
+export interface NoteLink {
+  id: string;
+  url: string;
+  description: string;
+}
+
 export interface Note {
   id: string;
   title: string;
@@ -14,6 +20,7 @@ export interface Note {
   updatedAt: string;
   linkedType?: 'project' | 'idea' | null;
   linkedId?: string | null;
+  links: NoteLink[];
 }
 
 export interface NoteConnection {

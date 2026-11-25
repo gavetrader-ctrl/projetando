@@ -47,7 +47,7 @@ beforeEach(() => {
       id: `note-${state.notes.length + 1}`,
       title: '', content: '', positionX: 200, positionY: 200,
       width: 280, height: 200, theme: 'default', emojiTag: '',
-      fontSize: 14, fontColor: '',
+      fontSize: 14, fontColor: '', links: [],
       createdAt: '2026-11-25T12:37:00Z', updatedAt: '2026-11-25T12:37:00Z',
       ...draft,
     };
@@ -97,5 +97,40 @@ describe('automatic editing of newly created notes', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Nova Nota' }));
     await waitFor(() => expect(state.addNote).toHaveResolvedWith(null));
     expect(screen.queryByPlaceholderText('Título da nota')).not.toBeInTheDocument();
+  });
+});
+
+describe('links on a note', () => {
+  it('saves a link with its description and completes the address', async () => {
+    openNotes();
+    fireEvent.click(screen.getByRole('button', { name: 'Nova Nota' }));
+    await screen.findByPlaceholderText('Título da nota');
+
+    fireEvent.change(screen.getByPlaceholderText('https://link...'), { target: { value: 'globo.com/sports' } });
+    fireEvent.change(screen.getByPlaceholderText('Descrição do link'), { target: { value: 'Portal de notícias' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar link' }));
+
+    await waitFor(() => expect(state.updateNote).toHaveBeenCalledWith(
+      'note-1',
+      expect.objectContaining({
+        links: [expect.objectContaining({ url: 'https://globo.com/sports', description: 'Portal de notícias' })],
+      }),
+    ));
+  });
+
+  it('removes a saved link from the note', async () => {
+    openNotes();
+    fireEvent.click(screen.getByRole('button', { name: 'Nova Nota' }));
+    await screen.findByPlaceholderText('Título da nota');
+
+    fireEvent.change(screen.getByPlaceholderText('https://link...'), { target: { value: 'https://example.com/doc' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar link' }));
+    await screen.findByText('https://example.com/doc');
+
+    fireEvent.click(screen.getByTitle('Remover link'));
+    await waitFor(() => expect(state.updateNote).toHaveBeenLastCalledWith(
+      'note-1',
+      expect.objectContaining({ links: [] }),
+    ));
   });
 });

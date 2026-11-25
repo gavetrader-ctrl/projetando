@@ -47,6 +47,7 @@ export default function Notes() {
         fontColor: note.fontColor,
         createdAt: note.createdAt,
         noteId: note.id,
+        links: note.links ?? [],
       },
     })),
   [notes]);

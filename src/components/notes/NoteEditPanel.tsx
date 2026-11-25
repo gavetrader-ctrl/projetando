@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Note, NoteConnection, NOTE_THEMES, EMOJI_TAGS } from '@/types/note';
+import { Note, NoteConnection, NoteLink, NOTE_THEMES, EMOJI_TAGS } from '@/types/note';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Trash2, Calendar, Clock, Unlink, Lightbulb, FolderPlus, Link2, Link2Off } from 'lucide-react';
+import { X, Trash2, Calendar, Clock, Unlink, Lightbulb, FolderPlus, Link2, Link2Off, ExternalLink, Copy, Plus } from 'lucide-react';
 import { Project, Idea } from '@/types/project';
 
 interface NoteEditPanelProps {
@@ -44,6 +44,9 @@ export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections =
   const [emojiTag, setEmojiTag] = useState(note.emojiTag);
   const [fontSize, setFontSize] = useState(note.fontSize);
   const [fontColor, setFontColor] = useState(note.fontColor);
+  const [links, setLinks] = useState<NoteLink[]>(note.links ?? []);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkDesc, setLinkDesc] = useState('');
 
   useEffect(() => {
     setTitle(note.title);
@@ -52,6 +55,7 @@ export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections =
     setEmojiTag(note.emojiTag);
     setFontSize(note.fontSize);
     setFontColor(note.fontColor);
+    setLinks(note.links ?? []);
   }, [note]);
 
   useEffect(() => {
@@ -59,7 +63,7 @@ export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections =
   }, [note.id]);
 
   const handleSave = () => {
-    onUpdate(note.id, { title, content, theme, emojiTag, fontSize, fontColor });
+    onUpdate(note.id, { title, content, theme, emojiTag, fontSize, fontColor, links });
   };
 
   const createdDate = new Date(note.createdAt);
@@ -76,6 +80,28 @@ export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections =
     if (value === 'none') { onUnlinkTarget?.(note.id); return; }
     const [type, id] = value.split(':');
     onLinkTarget?.(note.id, type as 'project' | 'idea', id);
+  };
+
+  const handleAddLink = () => {
+    const raw = linkUrl.trim();
+    if (!raw) return;
+    const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+    const newLink: NoteLink = { id: crypto.randomUUID(), url, description: linkDesc.trim() };
+    const next = [...links, newLink];
+    setLinks(next);
+    setLinkUrl('');
+    setLinkDesc('');
+    onUpdate(note.id, { links: next });
+  };
+
+  const handleRemoveLink = (linkId: string) => {
+    const next = links.filter(l => l.id !== linkId);
+    setLinks(next);
+    onUpdate(note.id, { links: next });
+  };
+
+  const handleCopyLink = (url: string) => {
+    navigator.clipboard?.writeText(url);
   };
 
   return (
@@ -192,6 +218,85 @@ export function NoteEditPanel({ note, onUpdate, onDelete, onClose, connections =
               {label}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Links */}
+      <div className="space-y-2 rounded-lg border border-border bg-secondary/20 p-3">
+        <Label className="text-xs flex items-center gap-1">
+          <Link2 className="h-3 w-3" />
+          Links
+        </Label>
+
+        {links.length > 0 && (
+          <div className="space-y-1">
+            {links.map(link => (
+              <div key={link.id} className="rounded border border-border px-2 py-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline flex items-center gap-1 min-w-0"
+                    title={link.url}
+                  >
+                    <ExternalLink className="h-3 w-3 shrink-0" />
+                    <span className="truncate">{link.description || link.url}</span>
+                  </a>
+                  <div className="flex items-center shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 text-muted-foreground hover:text-primary"
+                      title="Copiar link"
+                      onClick={() => handleCopyLink(link.url)}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 text-destructive hover:text-destructive"
+                      title="Remover link"
+                      onClick={() => handleRemoveLink(link.id)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+                {link.description && (
+                  <p className="text-[9px] text-muted-foreground truncate" title={link.url}>{link.url}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="space-y-1.5">
+          <Input
+            value={linkUrl}
+            onChange={e => setLinkUrl(e.target.value)}
+            placeholder="https://link..."
+            className="h-7 text-xs"
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddLink(); } }}
+          />
+          <Input
+            value={linkDesc}
+            onChange={e => setLinkDesc(e.target.value)}
+            placeholder="Descrição do link"
+            className="h-7 text-xs"
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddLink(); } }}
+          />
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full text-xs gap-1 h-7"
+            onClick={handleAddLink}
+            disabled={!linkUrl.trim()}
+          >
+            <Plus className="h-3 w-3" />
+            Adicionar link
+          </Button>
         </div>
       </div>
 

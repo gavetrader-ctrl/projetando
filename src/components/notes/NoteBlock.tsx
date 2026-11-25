@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { NOTE_THEMES } from '@/types/note';
-import { StickyNote, Calendar, Clock } from 'lucide-react';
+import { NOTE_THEMES, NoteLink } from '@/types/note';
+import { StickyNote, Calendar, Clock, Link2 } from 'lucide-react';
 
 interface NoteBlockData {
   label: string;
@@ -12,10 +12,11 @@ interface NoteBlockData {
   fontColor: string;
   createdAt: string;
   noteId: string;
+  links?: NoteLink[];
 }
 
 function NoteBlockComponent({ data }: { data: NoteBlockData }) {
-  const { label, content, theme, emojiTag, fontSize, fontColor, createdAt } = data;
+  const { label, content, theme, emojiTag, fontSize, fontColor, createdAt, links = [] } = data;
   const themeConfig = NOTE_THEMES[theme] || NOTE_THEMES.default;
 
   const createdDate = new Date(createdAt);
@@ -96,6 +97,27 @@ function NoteBlockComponent({ data }: { data: NoteBlockData }) {
       {content && (
         <div className="px-3 py-2 space-y-0.5 max-h-[120px] overflow-hidden" style={{ color: fontColor || 'hsl(200 20% 80%)' }}>
           {renderContent(content)}
+        </div>
+      )}
+
+      {/* Links */}
+      {links.length > 0 && (
+        <div className="px-3 py-1.5 flex flex-wrap gap-1 border-t" style={{ borderColor: `${themeConfig.border}20` }}>
+          {links.map(link => (
+            <a
+              key={link.id}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              title={link.description || link.url}
+              className="flex items-center gap-1 px-1.5 py-0.5 rounded border text-[9px] truncate max-w-full hover:opacity-80"
+              style={{ borderColor: `${themeConfig.border}50`, color: themeConfig.border }}
+            >
+              <Link2 className="h-2.5 w-2.5 shrink-0" />
+              <span className="truncate">{link.description || link.url}</span>
+            </a>
+          ))}
         </div>
       )}
 

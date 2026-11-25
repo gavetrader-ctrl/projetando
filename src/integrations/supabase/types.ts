@@ -186,6 +186,7 @@ export type Database = {
           id: string
           linked_id: string | null
           linked_type: string | null
+          links: Json
           position_x: number
           position_y: number
           theme: string
@@ -204,6 +205,7 @@ export type Database = {
           id?: string
           linked_id?: string | null
           linked_type?: string | null
+          links?: Json
           position_x?: number
           position_y?: number
           theme?: string
@@ -222,6 +224,7 @@ export type Database = {
           id?: string
           linked_id?: string | null
           linked_type?: string | null
+          links?: Json
           position_x?: number
           position_y?: number
           theme?: string

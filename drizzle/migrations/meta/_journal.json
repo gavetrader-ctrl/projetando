@@ -15,6 +15,13 @@
       "when": 1791574604441,
       "tag": "0001_create_external_projects",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795611589698,
+      "tag": "0002_add_note_links",
+      "breakpoints": true
     }
   ]
 }
